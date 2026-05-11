@@ -3,1618 +3,590 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>통계 화면 구성안 — 의사결정 자료</title>
+<title>데이터 분석 역량</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans KR','-apple-system',sans-serif;background:#F7F8FA;color:#1A202C;font-size:14px;line-height:1.6}
-
-/* ── TOPBAR ── */
-.topbar{background:#1C2B3A;height:52px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.topbar-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px}
-.topbar-sub{font-size:11px;color:#7B93A8;background:#253848;padding:3px 10px;border-radius:12px}
-.topbar-date{margin-left:auto;font-size:11px;color:#7B93A8}
-
-/* ── TABS ── */
-.tab-bar{background:#fff;border-bottom:2px solid #E8ECF0;display:flex;padding:0 24px;gap:0;position:sticky;top:52px;z-index:99}
-.tab-btn{padding:14px 20px;font-size:13px;font-weight:600;color:#8899AA;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
-.tab-btn.active{color:#1C2B3A;border-bottom-color:#E53E3E}
-.tab-btn .cnt{display:inline-block;background:#E53E3E;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:6px}
-.tab-btn.active .cnt{background:#E53E3E}
-.tab-btn .cnt.done{background:#38A169}
-
-/* ── TAB CONTENT ── */
-.tab-content{display:none}
-.tab-content.active{display:block}
-
-/* ── PROGRESS BAR ── */
-.progress-wrap{background:#fff;border-bottom:1px solid #E8ECF0;padding:16px 24px;display:flex;align-items:center;gap:16px}
-.progress-label{font-size:12px;color:#64748B;white-space:nowrap}
-.progress-track{flex:1;height:6px;background:#E8ECF0;border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#38A169,#48BB78);border-radius:3px;transition:width .4s ease;width:0%}
-.progress-status{font-size:12px;font-weight:700;color:#1A202C;white-space:nowrap}
-.progress-status span{color:#38A169}
-
-/* ── DECISION SECTION ── */
-.dec-section{padding:20px 24px 0}
-.sec-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.sec-title{font-size:16px;font-weight:700;color:#1A202C}
-.sec-badge{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600}
-.sec-badge.dash{background:#EBF8FF;color:#2B6CB0}
-.sec-badge.report{background:#FFF5F0;color:#C05621}
-.sec-badge.article{background:#F0FFF4;color:#276749}
-.sec-badge.all{background:#FAF0FE;color:#553C9A}
-
-/* ── DECISION CARD ── */
-.dec-card{background:#fff;border:1px solid #E8ECF0;border-radius:12px;margin-bottom:16px;overflow:hidden;transition:box-shadow .2s}
-.dec-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
-.dec-card.decided-yes{border-color:#C6F6D5;border-width:2px}
-.dec-card.decided-no{border-color:#FED7D7;border-width:2px}
-.dec-card.decided-hold{border-color:#FEFCBF;border-width:2px}
-.dec-card.decided-a{border-color:#BEE3F8;border-width:2px}
-.dec-card.decided-b{border-color:#C3DAFE;border-width:2px}
-
-.dec-card-header{padding:16px 20px 12px;border-bottom:1px solid #F1F5F9;display:flex;align-items:flex-start;gap:12px}
-.dec-card-number{width:28px;height:28px;background:#1C2B3A;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
-.dec-card-info{flex:1}
-.dec-card-title{font-size:15px;font-weight:700;color:#1A202C;margin-bottom:4px}
-.dec-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.priority{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
-.p1{background:#DBEAFE;color:#1E40AF}
-.p2{background:#EDE9FE;color:#4C1D95}
-.p3{background:#FEF3C7;color:#92400E}
-.p4{background:#FFEDD5;color:#9A3412}
-.p5{background:#FEE2E2;color:#7F1D1D}
-.meta-chip{font-size:11px;color:#64748B;background:#F7F8FA;border:1px solid #E2E8F0;padding:2px 8px;border-radius:5px}
-
-.dec-card-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.dec-panel{padding:16px 20px}
-.dec-panel.include{background:#F0FFF4;border-right:1px solid #E8ECF0}
-.dec-panel.exclude{background:#FFF5F5}
-.dec-panel-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.dec-panel.include .dec-panel-label{color:#276749}
-.dec-panel.exclude .dec-panel-label{color:#9B2C2C}
-.dec-panel-label::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%}
-.dec-panel.include .dec-panel-label::before{background:#38A169}
-.dec-panel.exclude .dec-panel-label::before{background:#E53E3E}
-.dec-panel-text{font-size:12px;line-height:1.7;color:#374151}
-.dec-panel-text li{margin-left:14px;margin-bottom:2px}
-
-/* Two-option decision (A vs B) */
-.dec-card-body.ab{grid-template-columns:1fr 1fr}
-.dec-panel.opt-a{background:#F0F7FF;border-right:1px solid #E8ECF0}
-.dec-panel.opt-b{background:#F5F3FF}
-.dec-panel.opt-a .dec-panel-label{color:#1D4ED8}
-.dec-panel.opt-b .dec-panel-label{color:#6D28D9}
-.dec-panel.opt-a .dec-panel-label::before{background:#3B82F6}
-.dec-panel.opt-b .dec-panel-label::before{background:#8B5CF6}
-.opt-title{font-size:13px;font-weight:700;color:#1A202C;margin-bottom:6px}
-
-.dec-card-footer{padding:12px 20px;border-top:1px solid #F1F5F9;display:flex;align-items:center;gap:8px;background:#FAFBFC;flex-wrap:wrap}
-.dec-footer-label{font-size:11px;color:#94A3B8;margin-right:4px}
-.dec-btn{padding:6px 16px;border-radius:7px;font-size:12px;font-weight:600;border:2px solid transparent;cursor:pointer;transition:all .15s;font-family:inherit}
-.dec-btn.yes{background:#fff;border-color:#38A169;color:#276749}
-.dec-btn.yes:hover,.dec-btn.yes.active{background:#38A169;color:#fff}
-.dec-btn.no{background:#fff;border-color:#E53E3E;color:#9B2C2C}
-.dec-btn.no:hover,.dec-btn.no.active{background:#E53E3E;color:#fff}
-.dec-btn.hold{background:#fff;border-color:#CBD5E0;color:#64748B}
-.dec-btn.hold:hover,.dec-btn.hold.active{background:#EDF2F7;color:#4A5568}
-.dec-btn.opt-a{background:#fff;border-color:#3B82F6;color:#1D4ED8}
-.dec-btn.opt-a:hover,.dec-btn.opt-a.active{background:#3B82F6;color:#fff}
-.dec-btn.opt-b{background:#fff;border-color:#8B5CF6;color:#6D28D9}
-.dec-btn.opt-b:hover,.dec-btn.opt-b.active{background:#8B5CF6;color:#fff}
-
-.dec-decided-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;display:none}
-.preview-link{margin-left:auto;flex-shrink:0;padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;border:1px solid #CBD5E0;background:#fff;color:#4A5568;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
-.preview-link:hover{background:#EBF8FF;border-color:#90CDF4;color:#2B6CB0}
-.dec-link{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #C05621;background:#FFF5F0;color:#C05621;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;margin-left:auto}
-.dec-link:hover{background:#C05621;color:#fff}
-.dec-card.decided-yes .dec-decided-badge{display:block;background:#C6F6D5;color:#22543D}
-.dec-card.decided-no .dec-decided-badge{display:block;background:#FED7D7;color:#742A2A}
-.dec-card.decided-hold .dec-decided-badge{display:block;background:#FEFCBF;color:#744210}
-.dec-card.decided-a .dec-decided-badge{display:block;background:#BEE3F8;color:#1A365D}
-.dec-card.decided-b .dec-decided-badge{display:block;background:#C3DAFE;color:#3C366B}
-
-/* ── FYI BOX ── */
-.fyi-box{background:#fff;border:1px dashed #CBD5E0;border-radius:12px;margin:0 24px 16px;padding:16px 20px}
-.fyi-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.fyi-tag{font-size:10px;font-weight:700;background:#EDF2F7;color:#718096;padding:2px 8px;border-radius:5px;letter-spacing:.05em}
-.fyi-title{font-size:14px;font-weight:700;color:#64748B}
-.fyi-items{display:flex;flex-wrap:wrap;gap:8px}
-.fyi-chip{font-size:11px;background:#F7FAFC;border:1px solid #E2E8F0;border-radius:7px;padding:6px 12px;color:#4A5568;display:flex;align-items:center;gap:6px}
-.fyi-chip::before{content:'✓';color:#38A169;font-weight:700}
-
-/* ── SUMMARY FOOTER ── */
-.dec-section-end{height:32px}
-
-/* ── PREVIEW TAB ── */
-.preview-wrap{display:flex;height:calc(100vh - 104px);overflow:hidden}
-.preview-sidebar{width:196px;background:#fff;border-right:2px solid #E8ECF0;overflow-y:auto;flex-shrink:0}
-.prev-menu-group{padding:12px 0}
-.prev-menu-label{font-size:10px;font-weight:700;color:#94A3B8;padding:4px 16px 6px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
-.prev-menu-label .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.prev-menu-label .dot.live{background:#F6AD55}
-.prev-menu-label .dot.period{background:#68D391}
-.prev-menu-item{width:100%;text-align:left;padding:7px 16px;font-size:12px;border:none;background:transparent;cursor:pointer;color:#64748B;border-left:3px solid transparent;display:block;transition:all .1s}
-.prev-menu-item:hover:not(.active){background:#F7F8FA}
-.prev-menu-item.active{background:#EBF8FF;color:#2B6CB0;border-left-color:#3182CE;font-weight:600}
-.prev-menu-item.sub{padding-left:28px;font-size:11px}
-.prev-menu-item.confirmed-tag::after{content:'확정';font-size:9px;font-weight:700;background:#C6F6D5;color:#276749;border-radius:4px;padding:1px 5px;margin-left:6px}
-
-.preview-main{flex:1;overflow-y:auto;background:#F7F8FA;padding:20px}
-
-/* ── SCREEN CARDS ── */
-.screen-title-bar{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.screen-title{font-size:17px;font-weight:700;color:#1A202C}
-.screen-user{font-size:11px;color:#94A3B8;background:#F1F5F9;padding:2px 8px;border-radius:10px}
-.screen-desc{font-size:12px;color:#64748B;margin-bottom:16px}
-
-/* KPI strip */
-.kpi-row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-.kpi-card{background:#fff;border:1px solid #E8ECF0;border-radius:10px;padding:12px 16px;flex:1;min-width:130px}
-.kpi-label{font-size:11px;color:#94A3B8;margin-bottom:4px}
-.kpi-value{font-size:24px;font-weight:700;color:#1A202C;letter-spacing:-.5px}
-.kpi-change{font-size:11px;margin-top:3px}
-.kpi-change.up{color:#38A169}
-.kpi-change.down{color:#E53E3E}
-.kpi-change.neutral{color:#94A3B8}
-
-/* Charts */
-.chart-box{background:#fff;border:1px solid #E8ECF0;border-radius:10px;padding:14px 16px;margin-bottom:12px}
-.chart-title{font-size:12px;font-weight:600;color:#374151;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.chart-title .ct-right{font-size:11px;color:#94A3B8;font-weight:400}
-
-/* Stack bar chart */
-.sbar-wrap{display:flex;flex-direction:column;gap:7px}
-.sbar-row{display:flex;align-items:center;gap:8px}
-.sbar-label{width:72px;font-size:11px;color:#374151;text-align:right;flex-shrink:0}
-.sbar-track{flex:1;height:20px;background:#F1F5F9;border-radius:4px;overflow:hidden;display:flex}
-.sbar-seg{height:100%;transition:width .3s}
-.sbar-count{width:50px;font-size:11px;color:#64748B;text-align:right;flex-shrink:0}
-
-/* Table */
-.data-table{width:100%;border-collapse:collapse;font-size:12px}
-.data-table th{background:#F7F8FA;border-bottom:2px solid #E8ECF0;padding:8px 10px;text-align:left;font-size:11px;font-weight:600;color:#64748B;white-space:nowrap}
-.data-table td{padding:8px 10px;border-bottom:1px solid #F1F5F9;color:#374151;vertical-align:middle}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:#FAFBFC}
-.data-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
-.rank-num{color:#94A3B8;font-size:11px}
-.art-title{color:#1A202C;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
-.bar-mini{display:inline-block;height:6px;background:#CBD5E0;border-radius:3px;margin-left:6px;vertical-align:middle}
-.bar-mini.highlight{background:#4299E1}
-
-/* Inflow viz */
-.inflow-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-
-/* Filter bar */
-.filter-bar{background:#fff;border:1px solid #E8ECF0;border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.filter-label{font-size:11px;color:#94A3B8}
-.filter-pills{display:flex;gap:6px}
-.fpill{padding:4px 12px;border:1px solid #E2E8F0;border-radius:16px;font-size:11px;cursor:pointer;background:#fff;color:#64748B;font-family:inherit}
-.fpill.active{background:#1C2B3A;color:#fff;border-color:#1C2B3A}
-
-/* Review overlay on screen */
-.review-screen-badge{display:inline-flex;align-items:center;gap:5px;background:#FFF5F0;border:1px solid #FBD38D;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;color:#C05621;margin-bottom:12px}
-.confirmed-screen-badge{display:inline-flex;align-items:center;gap:5px;background:#F0FFF4;border:1px solid #9AE6B4;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;color:#276749;margin-bottom:12px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
-
-/* Sparkline bars (time-based) */
-.spark-row{display:flex;align-items:flex-end;gap:3px;height:50px}
-.spark-bar{flex:1;background:#BEE3F8;border-radius:2px 2px 0 0;min-width:8px}
-.spark-bar.peak{background:#3182CE}
-.spark-labels{display:flex;justify-content:space-between;font-size:9px;color:#94A3B8;margin-top:3px}
-
-/* Tabs within preview */
-.inner-tabs{display:flex;border-bottom:1px solid #E8ECF0;margin-bottom:12px;overflow-x:auto}
-.inner-tab{padding:7px 14px;font-size:12px;font-weight:500;color:#94A3B8;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-family:inherit}
-.inner-tab.active{color:#2B6CB0;border-bottom-color:#3182CE;font-weight:600}
-
-.review-dim-card{border:2px dashed #FBD38D;border-radius:10px;padding:14px;background:#FFFAF0;margin-bottom:12px;transition:all .3s}
-.review-dim-card .review-content{transition:opacity .3s}
-/* 포함 결정 */
-.review-dim-card.state-include{border:2px solid #68D391;background:#F0FFF4}
-.review-dim-card.state-include .review-status-label{color:#276749}
-.review-dim-card.state-include .review-status-label::before{content:'✓ 포함 결정됨';color:#276749}
-/* 제외 결정 */
-.review-dim-card.state-exclude{border:2px dashed #CBD5E0;background:#F9FAFB}
-.review-dim-card.state-exclude .review-status-label{color:#718096}
-.review-dim-card.state-exclude .review-status-label::before{content:'✗ 제외 결정됨 — 이 항목은 화면에서 빠집니다';color:#718096}
-.review-dim-card.state-exclude .review-content{opacity:0.25;pointer-events:none}
-/* 보류 */
-.review-dim-card.state-hold{border:2px dashed #F6AD55;background:#FFFBEB}
-.review-dim-card.state-hold .review-status-label{color:#B7791F}
-.review-dim-card.state-hold .review-status-label::before{content:'⏸ 보류 중 — 결정 대기';color:#B7791F}
-/* 미결정 (기본) */
-.review-dim-card.state-undecided .review-status-label::before{content:'⚠ 검토 필요 — 미결정';color:#C05621}
-.review-status-label{font-size:11px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.review-status-label::before{content:'⚠ 검토 필요 — 미결정';color:#C05621}
-
-/* ── RESPONSIVE ── */
-.p-legend-mid{display:inline}
-@media(max-width:600px){
-  .topbar{height:auto;min-height:44px;padding:8px 12px;flex-wrap:wrap;gap:6px}
-  .topbar-sub{display:none}
-  .topbar-date{margin-left:auto;display:flex;align-items:center;gap:4px;flex-wrap:nowrap}
-  .p-legend-mid{display:none}
-  .tab-btn{padding:10px 14px;font-size:12px}
-  .dec-section{padding:12px 12px 0}
-  .dec-card-body{grid-template-columns:1fr}
-  .dec-panel.include{border-right:none;border-bottom:1px solid #E8ECF0}
-  .dec-panel.opt-a{border-right:none;border-bottom:1px solid #E8ECF0}
-  .dec-card-footer{flex-wrap:wrap;gap:6px}
-  .dec-btn{padding:5px 12px;font-size:11px}
-  .preview-link{margin-left:0;width:100%;text-align:center;margin-top:4px}
-  .kpi-row{flex-wrap:wrap}
-  .kpi-card{min-width:calc(50% - 6px);flex:unset}
-  .kpi-value{font-size:18px}
-  .grid2,.grid3{grid-template-columns:1fr}
-  .inflow-box{grid-template-columns:1fr}
-  .progress-wrap{padding:10px 12px;gap:10px}
-  .fyi-box{margin:0 12px 12px}
-  .preview-wrap{flex-direction:column}
-  .preview-sidebar{width:100%;height:auto;overflow-x:auto;border-right:none;border-bottom:2px solid #E8ECF0;display:flex;flex-direction:row;white-space:nowrap}
-  .prev-menu-group{display:inline-flex;padding:6px}
-  .prev-menu-item{display:inline-block;padding:6px 12px;border-left:none;border-bottom:3px solid transparent;font-size:11px}
-  .prev-menu-item.active{border-bottom-color:#3182CE;border-left-color:transparent}
-  .prev-menu-item.sub{padding-left:12px}
-  .preview-main{padding:12px}
-  .screen-title{font-size:15px}
-  .data-table{font-size:11px}
-  .data-table th,.data-table td{padding:6px 7px}
-  .art-title{max-width:140px}
-  .chart-box{padding:10px 12px}
-  .filter-bar{padding:6px 10px;gap:6px}
-  .sec-header{flex-wrap:wrap}
-  .dec-card-header{flex-wrap:wrap}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F2F0EA;
+  --surface: #FFFFFF;
+  --surface2: #E9E6DF;
+  --border: #D0CCC4;
+  --border-strong: #A8A49C;
+  --text-1: #111111;
+  --text-2: #2E2C29;
+  --text-3: #4A4744;
+  --text-4: #7A7672;
+  --blue: #1B4FD8;
+  --blue-light: rgba(27,79,216,0.18);
+  --blue-bg: #EEF2FF;
+  --amber: #B45309;
+  --amber-light: rgba(180,83,9,0.18);
+  --amber-bg: #FEF3C7;
+  --font: 'Noto Sans KR', -apple-system, "Apple SD Gothic Neo", sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
 }
-/* ── COMPLETION MODAL ── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
-.modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal-title{font-size:17px;font-weight:700;color:#1A202C;margin-bottom:4px}
-.modal-sub{font-size:12px;color:#94A3B8;margin-bottom:20px}
-.modal-item{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13px;display:flex;align-items:flex-start;gap:10px}
-.modal-item.yes{background:#F0FFF4;border:1px solid #9AE6B4}
-.modal-item.no{background:#F9FAFB;border:1px solid #E2E8F0}
-.modal-item.hold{background:#FFFBEB;border:1px solid #F6E05E}
-.modal-item.a{background:#EBF8FF;border:1px solid #90CDF4}
-.modal-item.b{background:#F5F3FF;border:1px solid #C3DAFE}
-.modal-item.undecided{background:#FFF5F5;border:1px solid #FEB2B2}
-.modal-item-icon{font-size:14px;flex-shrink:0;margin-top:1px}
-.modal-item-text{flex:1;line-height:1.5}
-.modal-item-label{font-weight:700;color:#1A202C}
-.modal-item-result{color:#64748B;font-size:12px}
-.modal-btns{display:flex;gap:8px;margin-top:20px}
-.modal-btn{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
-.modal-btn.copy{background:#1C2B3A;color:#fff}
-.modal-btn.copy:hover{background:#2D3F50}
-.modal-btn.close-btn{background:#F7F8FA;color:#4A5568;border:1px solid #E2E8F0}
-.modal-btn.close-btn:hover{background:#EDF2F7}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text-1); min-height: 100vh; -webkit-font-smoothing: antialiased; word-break: keep-all; }
+.page { max-width: 880px; margin: 0 auto; padding: 40px 20px 80px; }
+
+/* Header */
+.header { margin-bottom: 28px; padding-bottom: 22px; border-bottom: 2px solid var(--border-strong); }
+.eyebrow { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-4); margin-bottom: 10px; }
+h1 { font-size: clamp(28px, 6vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 8px; }
+.subtitle { font-size: 15px; font-weight: 500; color: var(--text-3); }
+
+/* Section */
+.sec { margin-bottom: 40px; }
+.sec-label { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-2); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-strong); display: flex; align-items: center; gap: 8px; }
+.sec-label::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--text-1); border-radius: 2px; flex-shrink: 0; }
+
+/* Premise */
+.premise { background: var(--text-1); border-radius: 10px; padding: 24px 28px; margin-bottom: 36px; }
+.premise-label { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+.premise-hook { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 16px; font-style: italic; }
+.premise-list { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+.premise-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.88); line-height: 1.65; }
+.pl-num { font-family: var(--mono); font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.3); margin-top: 3px; flex-shrink: 0; width: 20px; }
+.premise-list li strong { color: #fff; font-weight: 700; }
+
+/* Flow */
+.flow-wrap { display: flex; overflow-x: auto; border: 1.5px solid var(--border-strong); border-radius: 10px; background: var(--surface); -webkit-overflow-scrolling: touch; }
+.flow-col { flex: 1; min-width: 150px; padding: 18px 16px; border-right: 1px solid var(--border); }
+.flow-col:last-child { border-right: none; }
+.flow-col-head { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px; }
+.tool-chip { display: inline-block; font-size: 12px; font-weight: 600; font-family: var(--mono); background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 4px 9px; margin: 0 4px 6px 0; color: var(--text-2); }
+.flow-badge { display: inline-block; font-size: 11px; font-weight: 700; background: var(--blue-bg); color: var(--blue); border-radius: 4px; padding: 3px 8px; margin: 0 4px 5px 0; }
+.flow-note { font-size: 12px; font-weight: 500; color: var(--text-4); line-height: 1.6; margin-top: 10px; }
+.flow-arrow-wrap { display: flex; align-items: center; padding: 0 4px; color: var(--border-strong); font-size: 20px; flex-shrink: 0; }
+
+/* Competency */
+.comp-item { display: grid; grid-template-columns: 190px 1fr; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; background: var(--surface); }
+.comp-left { padding: 20px; background: var(--surface2); border-right: 1px solid var(--border); }
+.comp-num { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-4); display: block; margin-bottom: 5px; }
+.comp-title { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; display: block; margin-bottom: 8px; line-height: 1.3; }
+.comp-badge { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px; color: var(--text-4); }
+.comp-right { padding: 20px 22px; display: flex; align-items: center; }
+.comp-desc { font-size: 14px; font-weight: 500; color: var(--text-2); line-height: 1.8; }
+.comp-desc strong { color: var(--text-1); font-weight: 700; }
+
+/* Level block */
+.level-block { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; background: var(--surface); }
+.level-tool-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.level-tool-name { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; }
+.level-tool-cat { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-4); }
+.level-rows { display: grid; grid-template-columns: repeat(4, 1fr); }
+.level-cell { padding: 14px 16px; border-right: 1px solid var(--border); }
+.level-cell:last-child { border-right: none; }
+.level-num { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-4); display: block; margin-bottom: 3px; }
+.level-name { font-size: 13px; font-weight: 800; color: var(--text-1); display: block; margin-bottom: 7px; }
+.level-desc { font-size: 12px; font-weight: 500; color: var(--text-3); line-height: 1.65; }
+
+/* ── Diagnosis Layout ── */
+.diag-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.diag-chart-col {
+  position: sticky;
+  top: 24px;
+}
+.diag-chart-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 16px 16px;
+}
+.diag-chart-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.diag-chart-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-4);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.diag-legend-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  justify-content: center;
+}
+.diag-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.diag-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; font-family: var(--mono); flex-shrink: 0; }
+.dot-a { background: var(--blue-bg); color: var(--blue); }
+.dot-b { background: var(--amber-bg); color: var(--amber); }
+
+#radar-svg { width: 100%; height: auto; display: block; }
+
+/* Diag blocks */
+.diag-blocks-col { display: flex; flex-direction: column; gap: 10px; }
+.diag-block { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.diag-tool-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.diag-tool-name { font-size: 14px; font-weight: 800; letter-spacing: -0.02em; }
+.diag-tool-cat { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-4); }
+.diag-rows { display: grid; grid-template-columns: repeat(4, 1fr); }
+.diag-cell { padding: 11px 12px; border-right: 1px solid var(--border); cursor: pointer; transition: background 0.1s; min-height: 78px; display: flex; flex-direction: column; gap: 3px; user-select: none; }
+.diag-cell:last-child { border-right: none; }
+.diag-cell:hover { background: #F4F2ED; }
+.diag-cell.sel-a  { background: var(--blue-bg); border-bottom: 3px solid var(--blue); }
+.diag-cell.sel-b  { background: var(--amber-bg); border-bottom: 3px solid var(--amber); }
+.diag-cell.sel-ab { background: linear-gradient(135deg, var(--blue-bg) 50%, var(--amber-bg) 50%); border-bottom: 3px solid var(--border-strong); }
+.diag-lv { font-family: var(--mono); font-size: 9px; font-weight: 600; color: var(--text-4); letter-spacing: 0.06em; }
+.diag-lv-name { font-size: 11px; font-weight: 800; color: var(--text-1); }
+.diag-lv-desc { font-size: 10.5px; font-weight: 500; color: var(--text-3); line-height: 1.5; flex: 1; }
+.diag-markers { display: flex; gap: 3px; margin-top: 3px; }
+.diag-marker { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; font-family: var(--mono); opacity: 0; transition: opacity 0.15s; }
+.diag-cell.sel-a  .marker-a,
+.diag-cell.sel-ab .marker-a { opacity: 1; }
+.diag-cell.sel-b  .marker-b,
+.diag-cell.sel-ab .marker-b { opacity: 1; }
+.marker-a { background: var(--blue); color: #fff; }
+.marker-b { background: var(--amber); color: #fff; }
+
+.diag-note { font-size: 11px; font-weight: 500; color: var(--text-4); margin-top: 14px; text-align: center; font-family: var(--mono); }
+
+/* Mobile */
+@media (max-width: 660px) {
+  .page { padding: 24px 14px 60px; }
+  h1 { font-size: 26px; }
+  .comp-item { grid-template-columns: 1fr; }
+  .comp-left { border-right: none; border-bottom: 1px solid var(--border); }
+  .level-rows { grid-template-columns: repeat(2, 1fr); }
+  .level-cell:nth-child(2) { border-right: none; }
+  .level-cell:nth-child(3), .level-cell:nth-child(4) { border-top: 1px solid var(--border); }
+  .level-cell:nth-child(4) { border-right: none; }
+  .flow-wrap { flex-direction: column; }
+  .flow-col { border-right: none; border-bottom: 1px solid var(--border); min-width: unset; }
+  .flow-col:last-child { border-bottom: none; }
+  .flow-arrow-wrap { display: none; }
+  .level-tool-head, .diag-tool-head { flex-direction: column; align-items: flex-start; gap: 3px; }
+
+  .diag-layout { grid-template-columns: 1fr; }
+  .diag-chart-col { position: static; }
+  .diag-rows { grid-template-columns: repeat(2, 1fr); }
+  .diag-cell:nth-child(2) { border-right: none; }
+  .diag-cell:nth-child(3), .diag-cell:nth-child(4) { border-top: 1px solid var(--border); }
+  .diag-cell:nth-child(4) { border-right: none; }
+}
 </style>
 </head>
 <body>
+<div class="page">
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <span class="topbar-title">한국일보 통계 대시보드</span>
-  <span class="topbar-sub">화면 구성안 2026.04.30</span>
-  <span class="topbar-date">
-    <span style="color:#94A3B8;margin-right:6px">우선순위</span>
-    <span style="background:#DBEAFE;color:#1E40AF;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:4px">P1 핵심</span>
-    <span class="p-legend-mid" style="background:#EDE9FE;color:#4C1D95;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:4px">P2 높음</span>
-    <span class="p-legend-mid" style="background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:4px">P3 중간</span>
-    <span class="p-legend-mid" style="background:#FFEDD5;color:#9A3412;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:4px">P4 검토</span>
-    <span style="background:#FEE2E2;color:#7F1D1D;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:8px">P5 제외검토</span>
-    <span style="color:#7B93A8">2026.04.30</span>
-  </span>
-</div>
-
-<!-- TAB BAR -->
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('decisions',this)">
-    ✅ 결정 사항 <span class="cnt" id="cnt-badge">7건 대기</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('preview',this)">
-    🖥 화면 미리보기
-  </button>
-</div>
-
-<!-- ============================= DECISIONS TAB ============================= -->
-<div class="tab-content active" id="tab-decisions">
-
-  <!-- PROGRESS -->
-  <div class="progress-wrap">
-    <span class="progress-label">결정 진행률</span>
-    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
-    <span class="progress-status" id="prog-text"><span>0</span> / 7 결정됨</span>
+  <div class="header">
+    <p class="eyebrow">Internal · Confidential</p>
+    <h1>데이터 분석 역량</h1>
+    <p class="subtitle">도구 숙련도와 분석 역량의 4단계 기준 및 인물별 현황 진단</p>
   </div>
 
-  <!-- ── 섹션 1: 공통 대시보드 ── -->
-  <div class="dec-section">
-    <div class="sec-header">
-      <span class="sec-title">공통 대시보드</span>
-      <span class="sec-badge dash">뉴스룸 / 실시간</span>
-    </div>
+  <div class="premise">
+    <p class="premise-label">전제</p>
+    <p class="premise-hook">숫자를 꺼내는 건 누구나 한다.</p>
+    <ul class="premise-list">
+      <li><span class="pl-num">01</span><span><strong>어떤 데이터로 어떤 질문을 해야 하는지</strong> 스스로 설계하고</span></li>
+      <li><span class="pl-num">02</span><span>이상이 생기면 <strong>직접 거슬러 올라가며</strong> 원인을 찾고</span></li>
+      <li><span class="pl-num">03</span><span>그 결과가 지금 무엇을 말하고 <strong>어떤 결정으로 이어져야 하는지까지</strong> 짚을 수 있는 사람</span></li>
+    </ul>
+  </div>
 
-    <!-- CARD 1 -->
-    <div class="dec-card" id="card-1">
-      <div class="dec-card-header">
-        <div class="dec-card-number">1</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">시간대별 방문수·조회수 그래프</div>
-          <div class="dec-card-meta">
-            <span class="priority p3">P3</span>
-            <span class="meta-chip">실시간 · 그래프</span>
-            <span class="meta-chip">공통 대시보드 내 위치</span>
-          </div>
-        </div>
+  <div class="sec">
+    <p class="sec-label">데이터 흐름과 역량 영역</p>
+    <div class="flow-wrap">
+      <div class="flow-col">
+        <p class="flow-col-head">수집 플랫폼</p>
+        <span class="tool-chip">GA4</span><span class="tool-chip">Athena</span><span class="tool-chip">Salesforce</span>
+        <p class="flow-note">이벤트 수집 구조 이해 필요</p>
       </div>
-      <div class="dec-card-body">
-        <div class="dec-panel include">
-          <div class="dec-panel-label">포함한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>오전/오후 피크 타임 즉시 파악 — "오전 8시 급등"을 공유 가능한 인사이트로 전환</li>
-              <li>방문수·조회수 동시 표시로 트래픽 대비 소비 품질 진단 가능</li>
-              <li>유입경로 분석(P1·P2)과 시간 맥락 연결 → 뉴스룸의 콘텐츠 출고 패턴 개선 근거</li>
-            </ul>
-          </div>
-        </div>
-        <div class="dec-panel exclude">
-          <div class="dec-panel-label">제외한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>P1·P2 KPI 지표로 핵심 목적(오늘 잘 하고 있나) 달성 가능 — P3 없어도 핵심 누락 없음</li>
-              <li>실시간 대시보드 화면 밀도 증가, 특히 모바일 레이아웃에서 스크롤 부담</li>
-              <li>리포트(특정기간)에 동일 그래프 P3으로 이미 포함 — 실시간 버전의 추가 가치 제한적</li>
-            </ul>
-          </div>
-        </div>
+      <div class="flow-arrow-wrap">→</div>
+      <div class="flow-col">
+        <p class="flow-col-head">분석 도구</p>
+        <span class="tool-chip">BigQuery</span><span class="tool-chip">Python</span><span class="tool-chip">DBeaver</span>
+        <div style="margin-top:10px"><span class="flow-badge">분석 기획</span><span class="flow-badge">원인 규명</span></div>
+        <p class="flow-note">질문 설계, 이상 역추적</p>
       </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn yes" onclick="decide(1,'yes',this)">포함</button>
-        <button class="dec-btn no" onclick="decide(1,'no',this)">제외</button>
-        <button class="dec-btn hold" onclick="decide(1,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-1">—</span>
-        <button class="preview-link" onclick="goToPreview('dash-screen')">화면 미리보기 →</button>
-      </div>
-    </div>
-
-    <!-- CARD 2 -->
-    <div class="dec-card" id="card-2">
-      <div class="dec-card-header">
-        <div class="dec-card-number">2</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">플랫폼별 인기기사 테이블 (5개 탭)</div>
-          <div class="dec-card-meta">
-            <span class="priority p4">P4</span>
-            <span class="meta-chip">실시간 · 테이블</span>
-            <span class="meta-chip">닷컴 / 네이버 / 다음 / 내 부서 / 내 기사</span>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-body">
-        <div class="dec-panel include">
-          <div class="dec-panel-label">포함한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>"내 부서·내 기사" 탭 — 기자가 실시간으로 자기 기사 성과 즉시 확인, 높은 개인 활용도</li>
-              <li>포털 탭(네이버·다음)으로 외부 플랫폼 실시간 경쟁 현황 비교 가능</li>
-              <li>공통 대시보드 한 곳에서 전/내 부서/내 기사 성과를 원스톱으로 비교</li>
-            </ul>
-          </div>
-        </div>
-        <div class="dec-panel exclude">
-          <div class="dec-panel-label">제외한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>5개 탭은 실시간 화면에서 정보 과부하 — 탭 전환 UX가 의사결정 속도 저하</li>
-              <li>기사분석 > 랭킹, 운영 대시보드의 포털 기사 순위와 실질적 중복 (3중 중복 위험)</li>
-              <li>"내 부서·내 기사"는 기사분석 > 기자별·부서별에서 더 풍부한 컨텍스트로 제공 가능</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn yes" onclick="decide(2,'yes',this)">포함</button>
-        <button class="dec-btn no" onclick="decide(2,'no',this)">제외</button>
-        <button class="dec-btn hold" onclick="decide(2,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-2">—</span>
-        <button class="preview-link" onclick="goToPreview('dash-screen')">화면 미리보기 →</button>
+      <div class="flow-arrow-wrap">→</div>
+      <div class="flow-col">
+        <p class="flow-col-head">활용</p>
+        <span class="tool-chip">Looker Studio</span><span class="tool-chip">Tableau</span>
+        <div style="margin-top:10px"><span class="flow-badge">상황 해석 · 의사결정</span></div>
+        <p class="flow-note">진단, 방향 제시, 결정 연결</p>
       </div>
     </div>
   </div>
 
-  <!-- ── 섹션 2: 리포트 ── -->
-  <div class="dec-section">
-    <div class="sec-header">
-      <span class="sec-title">리포트</span>
-      <span class="sec-badge report">뉴스룸·운영부·마케팅 / 특정기간</span>
+  <div class="sec">
+    <p class="sec-label">분석 역량 정의</p>
+    <div class="comp-item">
+      <div class="comp-left"><span class="comp-num">01</span><span class="comp-title">분석 기획</span><span class="comp-badge">Planning</span></div>
+      <div class="comp-right"><p class="comp-desc">분석 주제에 맞는 데이터를 고르고, <strong>결과를 보면서 다음 질문을 계속 이어간다.</strong> 어떤 데이터로 어떤 순서로 질문할지 처음부터 끝까지 스스로 설계할 수 있다.</p></div>
     </div>
+    <div class="comp-item">
+      <div class="comp-left"><span class="comp-num">02</span><span class="comp-title">원인 규명</span><span class="comp-badge">Diagnosis</span></div>
+      <div class="comp-right"><p class="comp-desc">숫자가 이상할 때, <strong>수집부터 적재까지 데이터가 만들어지는 과정을 거슬러 올라가며</strong> 어디서 왜 틀어졌는지 찾아낸다. 표면 원인에서 멈추지 않고 근본까지 파고든다.</p></div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-left"><span class="comp-num">03</span><span class="comp-title">상황 해석 · 의사결정</span><span class="comp-badge">Insight</span></div>
+      <div class="comp-right"><p class="comp-desc">분석 결과가 지금 무엇을 말하는지, 앞으로 어떻게 될지 읽어내고 <strong>어떤 결정을 해야 하는지까지 짚는다.</strong> 숫자에서 결정으로 스스로 이어갈 수 있다.</p></div>
+    </div>
+  </div>
 
-    <!-- CARD 3 -->
-    <div class="dec-card" id="card-3">
-      <div class="dec-card-header">
-        <div class="dec-card-number">3</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">성과지표 상세 8종 (방문수·사용자·조회수·기사조회·당일기사조회·방문당조회·열독율·출고량)</div>
-          <div class="dec-card-meta">
-            <span class="priority p4">P4</span>
-            <span class="meta-chip">특정기간 · 지표+텍스트</span>
-            <span class="meta-chip">요약 KPI와 중복 검토</span>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-body">
-        <div class="dec-panel include">
-          <div class="dec-panel-label">포함한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>요약 테이블은 기간별 추이만, 상세는 개별 지표 절대값 + 텍스트 해석 → 두 레이어 분리 가능</li>
-              <li>"기사 조회수 vs 당일출고 기사 조회수" 구분으로 신구 기사 성과 분리 진단</li>
-              <li>마케팅팀 보고자료에 지표 단위 수치 직접 인용 가능</li>
-            </ul>
-          </div>
-        </div>
-        <div class="dec-panel exclude">
-          <div class="dec-panel-label">제외한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>요약 리포트 테이블 항목(방문수·사용자·조회수·방문당조회·열독율·출고량)과 실질적 중복</li>
-              <li>리포트 상세 화면에 행동분석(P2)·유입경로 분석(P1)이 이미 있어 분량 과다</li>
-              <li>필요 시 기사분석 > 상세에서 기사 단위로 더 깊은 진단 가능 — 리포트 레이어 불필요</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn yes" onclick="decide(3,'yes',this)">포함</button>
-        <button class="dec-btn no" onclick="decide(3,'no',this)">제외</button>
-        <button class="dec-btn hold" onclick="decide(3,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-3">—</span>
-        <button class="preview-link" onclick="goToPreview('report-screen')">화면 미리보기 →</button>
+  <div class="sec">
+    <p class="sec-label">레벨 기준 — 도구 숙련도</p>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">GA4</span><span class="level-tool-cat">수집 플랫폼</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">이름은 알지만 직접 열어본 적 없음. 어떤 데이터가 수집되는지 관심 자체 없음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">대시보드에서 PV, 세션 수 읽는 수준. 왜 그 숫자가 나오는지, 어디서 오는지 모름</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">날짜 필터, 세그먼트, 기본 리포트를 스스로 조작함. 이벤트를 이해하고 원하는 기준으로 리포트를 직접 구성함</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">이벤트 수집 구조를 이해함. GA4 → BigQuery 적재 흐름 파악, 수집 설계 자체에 의견을 낼 수 있음</span></div>
       </div>
     </div>
-
-    <!-- CARD 4 -->
-    <div class="dec-card" id="card-4">
-      <div class="dec-card-header">
-        <div class="dec-card-number">4</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">기사 생산량 4종 (출고량·과거비교·타사비교·시간대별 출고-조회 분포)</div>
-          <div class="dec-card-meta">
-            <span class="priority p5">P5</span>
-            <span class="meta-chip">특정기간 · 그래프+지표</span>
-            <span class="meta-chip">타사 데이터 수집 필요</span>
-          </div>
-        </div>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">BigQuery</span><span class="level-tool-cat">분석 도구</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">접근 권한도 없고 어떻게 여는지 모름. GA4 데이터가 여기 쌓인다는 것 자체를 몰랐음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">기본 SELECT · WHERE · GROUP BY 작성 가능. 누군가 짜놓은 쿼리를 조건만 바꿔서 쓰는 수준</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">JOIN, 서브쿼리, 윈도우 함수를 스스로 조합해서 분석 쿼리를 처음부터 설계함. 테이블 구조 파악하고 직접 꺼냄</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">파티션 테이블 구조 이해, 비용·속도 고려해서 쿼리 최적화. 스케줄 쿼리로 자동화하고 대용량 처리 전략을 스스로 세움</span></div>
       </div>
-      <div class="dec-card-body">
-        <div class="dec-panel include">
-          <div class="dec-panel-label">포함한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>생산량 ↔ 성과(방문수·조회수) 상관관계 분석 → 뉴스룸 업무 효율화 근거 데이터</li>
-              <li>시간대별 출고량·조회수 분포로 최적 출고 타이밍 도출 가능</li>
-              <li>타사 비교 데이터 있으면 편집국 경쟁력 진단에 유용한 경영진 자료</li>
-            </ul>
-          </div>
-        </div>
-        <div class="dec-panel exclude">
-          <div class="dec-panel-label">제외한다면</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>전체 98개 항목 중 최저 우선순위(P5) — 1차 출시 범위 밖 확정 권장</li>
-              <li>타사 출고량 데이터 수집 별도 계약·비용 필요 — 개발 복잡도 불균형</li>
-              <li>실제 뉴스룸 사용 빈도 불확실 — 수요 확인 후 2차 출시에 포함하는 것이 리스크 낮음</li>
-            </ul>
-          </div>
-        </div>
+    </div>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">Python</span><span class="level-tool-cat">분석 도구</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">코드 복붙 수준. 오류 메시지가 뜨면 무슨 뜻인지 몰라서 거기서 멈춤</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">pandas로 기본 데이터 조작 가능. 주어진 코드 구조 안에서 조건이나 컬럼 정도 바꿀 수 있음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">데이터 전처리, 집계, 시각화를 처음부터 설계하고 구현함. 분석 목적에 맞게 코드 구조를 스스로 짬</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">외부 플랫폼 API와 직접 연결해서 데이터를 자동으로 수집·적재하는 파이프라인을 구성함. 반복 작업을 자동화하고 재사용 가능한 구조로 정리해둠</span></div>
       </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn yes" onclick="decide(4,'yes',this)">포함</button>
-        <button class="dec-btn no" onclick="decide(4,'no',this)">제외</button>
-        <button class="dec-btn hold" onclick="decide(4,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-4">—</span>
-        <button class="preview-link" onclick="goToPreview('report-screen')">화면 미리보기 →</button>
+    </div>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">Salesforce 연동</span><span class="level-tool-cat">수집 플랫폼</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">분석에 어떻게 쓰는지 모름. Python이나 DBeaver로 직접 데이터를 꺼낼 수 있다는 생각 자체 없었음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">회원 데이터가 Salesforce에 있다는 건 알고 있음. 직접 접근해본 적 없고 필요하면 누군가한테 부탁하는 방식</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">DBeaver 또는 API 연동 설정을 스스로 완료함. 원하는 회원 데이터를 직접 꺼내서 분석에 씀</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">어떤 데이터가 어떤 구조로 쌓여 있는지 파악하고 필요한 데이터를 스스로 설계해서 추출함. Python · DBeaver와 연동한 분석 흐름 전체를 직접 구성함</span></div>
+      </div>
+    </div>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">DBeaver</span><span class="level-tool-cat">분석 도구</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">설치해본 적 없음. DB에 직접 붙어서 데이터를 꺼낸다는 개념 자체 없음. 파일로 받거나 누군가 뽑아주길 기다림</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">연결 설정은 도움을 받아 완료한 상태. 기본 SELECT 쿼리로 단순 조회 가능</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">DB 연결 설정을 스스로 완료함. 여러 테이블을 JOIN하고 복잡한 조건의 쿼리를 직접 작성해서 원하는 데이터를 꺼낼 수 있음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">BigQuery, Salesforce 등 여러 DB를 동시에 연결해서 운영함. 쿼리 구조를 최적화하고 반복 추출 작업을 쿼리 단에서 정리해둠</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ── 섹션 3: 기사분석 ── -->
-  <div class="dec-section">
-    <div class="sec-header">
-      <span class="sec-title">기사분석</span>
-      <span class="sec-badge article">뉴스룸·운영부·마케팅 / 특정기간</span>
-    </div>
-
-    <!-- CARD 5: A vs B -->
-    <div class="dec-card" id="card-5">
-      <div class="dec-card-header">
-        <div class="dec-card-number">5</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">랭킹 화면 세분화 — 탭 통합 vs 별도 화면 분리</div>
-          <div class="dec-card-meta">
-            <span class="priority p2">P2</span>
-            <span class="meta-chip">구조 결정</span>
-            <span class="meta-chip">부서별·기자별·묶음·편집·로그인월 포함</span>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-body ab">
-        <div class="dec-panel opt-a">
-          <div class="dec-panel-label">옵션 A</div>
-          <div class="opt-title">랭킹 화면 내 탭으로 통합</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>닷컴·네이버·다음·부서별·기자별을 한 화면에서 탭 전환 비교</li>
-              <li>사이드바 메뉴 단순화 — 랭킹 하나로 진입</li>
-              <li>탭 간 맥락 이동이 빠름 (기사 A가 닷컴 3위, 네이버 1위 비교)</li>
-              <li style="color:#9B2C2C">탭 수가 많아지면 한 화면 과밀 위험</li>
-            </ul>
-          </div>
-        </div>
-        <div class="dec-panel opt-b">
-          <div class="dec-panel-label">옵션 B</div>
-          <div class="opt-title">서브메뉴로 각각 분리</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>기자별 → "내 기사 성과" 전용 화면, 부서장 → 부서별 전용 화면</li>
-              <li>각 뷰에 최적화된 필터·컬럼 구성 가능</li>
-              <li>기자가 직접 자기 기사로 바로 진입 가능 (북마크 직접 접근)</li>
-              <li style="color:#9B2C2C">7개 서브메뉴 → 사이드바 복잡도 증가</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn opt-a" onclick="decide(5,'a',this)">옵션 A (탭 통합)</button>
-        <button class="dec-btn opt-b" onclick="decide(5,'b',this)">옵션 B (분리)</button>
-        <button class="dec-btn hold" onclick="decide(5,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-5">—</span>
-        <button class="preview-link" onclick="goToPreview('article-screen')">화면 미리보기 →</button>
+  <div class="sec">
+    <p class="sec-label">레벨 기준 — 분석 역량</p>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">분석 기획</span><span class="level-tool-cat">Planning</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">시키는 것만 함. 다음 질문을 만들어야 한다는 개념 자체 없음. 결과가 나오면 거기서 끝</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">질문이 주어지면 데이터는 꺼냄. 그 결과를 보고 뭘 더 봐야 하는지 스스로 판단 못하고 매번 다음 스텝을 물어봄</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">결과를 보고 후속 질문을 스스로 만들어냄. 다만 분석 전체 흐름을 처음부터 설계하는 건 어려움</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">어떤 데이터로 어떤 질문을 어떤 순서로 던질지 스스로 설계하고 끝까지 이어감. 분석의 시작과 끝을 혼자 그릴 수 있음</span></div>
       </div>
     </div>
-
-    <!-- CARD 6: A vs B -->
-    <div class="dec-card" id="card-6">
-      <div class="dec-card-header">
-        <div class="dec-card-number">6</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">기사분석 1차 출시 범위 결정</div>
-          <div class="dec-card-meta">
-            <span class="meta-chip">전체 47개 항목 · 7개 서브메뉴</span>
-            <span class="meta-chip">개발 일정 직결</span>
-          </div>
-        </div>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">원인 규명</span><span class="level-tool-cat">Diagnosis</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">숫자가 이상해도 그냥 넘기거나 단순 보고로 끝냄. 파이프라인을 거슬러 올라가야 한다는 발상 자체 없음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">이상하다고 보고는 하지만 직접 파고들지 않음. 원인 파악은 누군가 해주길 기다림</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">데이터를 직접 역추적해서 표면적 원인을 찾아냄. 다만 거기서 멈추고 더 근본적인 원인까지 나아가지 못함</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">수집부터 적재까지 전 과정을 역추적해서 어디서 왜 틀어졌는지 스스로 찾아냄. 표면 원인에서 멈추지 않고 근본 원인까지 파고듦</span></div>
       </div>
-      <div class="dec-card-body ab">
-        <div class="dec-panel opt-a">
-          <div class="dec-panel-label">옵션 A</div>
-          <div class="opt-title">7개 서브메뉴 전체 1차 출시</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>랭킹·상세·묶음·부서별·기자별·편집영역별·로그인월 완성형 오픈</li>
-              <li>출시 직후 모든 사용자 그룹(기자·부서장·운영·마케팅) 즉시 활용</li>
-              <li style="color:#9B2C2C">개발 기간 증가, 품질 균형 잡기 어려움</li>
-              <li style="color:#9B2C2C">낮은 우선순위 항목(P3·P4) 포함으로 핵심 집중 분산</li>
-            </ul>
-          </div>
-        </div>
-        <div class="dec-panel opt-b">
-          <div class="dec-panel-label">옵션 B</div>
-          <div class="opt-title">P1 핵심 우선 출시 후 단계적 추가</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>1차: 랭킹(P1) + 상세(P1·P2) 핵심 출시</li>
-              <li>2차: 묶음·부서별·기자별·편집영역별·로그인월 순차 추가</li>
-              <li>핵심 품질 집중 → 초기 사용자 만족도 확보</li>
-              <li style="color:#9B2C2C">기자·부서별 분석은 2차까지 대기 필요</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn opt-a" onclick="decide(6,'a',this)">옵션 A (전체 출시)</button>
-        <button class="dec-btn opt-b" onclick="decide(6,'b',this)">옵션 B (단계적)</button>
-        <button class="dec-btn hold" onclick="decide(6,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-6">—</span>
-        <button class="preview-link" onclick="goToPreview('article-screen')">화면 미리보기 →</button>
+    </div>
+    <div class="level-block">
+      <div class="level-tool-head"><span class="level-tool-name">상황 해석 · 의사결정</span><span class="level-tool-cat">Insight</span></div>
+      <div class="level-rows">
+        <div class="level-cell"><span class="level-num">Lv 1</span><span class="level-name">인식 전</span><span class="level-desc">숫자를 꺼내서 전달하는 게 분석의 끝이라고 생각함. 의미를 연결하려는 시도 없음</span></div>
+        <div class="level-cell"><span class="level-num">Lv 2</span><span class="level-name">기초</span><span class="level-desc">결과를 전달하긴 하지만 숫자 나열 수준. 왜 이런 결과가 나왔는지, 좋은 건지 나쁜 건지 설명 못함</span></div>
+        <div class="level-cell"><span class="level-num">Lv 3</span><span class="level-name">독립 수행</span><span class="level-desc">현재 상태가 어떤 의미인지 설명 가능. 앞으로 어떻게 될지, 어떤 결정을 해야 하는지까지는 연결 못함</span></div>
+        <div class="level-cell"><span class="level-num">Lv 4</span><span class="level-name">주도·설계</span><span class="level-desc">분석 결과로 지금 상황을 진단하고, 앞으로 어떻게 될지 판단해서 어떤 결정을 해야 하는지까지 짚어냄. 숫자에서 결정까지 스스로 이어감</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ── 섹션 4: 전체 ── -->
-  <div class="dec-section">
-    <div class="sec-header">
-      <span class="sec-title">전체</span>
-      <span class="sec-badge all">사용자 구분 방식</span>
-    </div>
+  <!-- Diagnosis -->
+  <div class="sec">
+    <p class="sec-label">인물별 진단</p>
+    <div class="diag-layout">
 
-    <!-- CARD 7: A vs B -->
-    <div class="dec-card" id="card-7">
-      <div class="dec-card-header">
-        <div class="dec-card-number">7</div>
-        <div class="dec-card-info">
-          <div class="dec-card-title">뉴스룸 · 마케팅 — 같은 화면 vs 별도 뷰 제공</div>
-          <div class="dec-card-meta">
-            <span class="meta-chip">전체 화면 설계 방향 결정</span>
-            <span class="meta-chip">공통 대시보드·리포트·기사분석 영향</span>
+      <!-- Left: sticky radar chart -->
+      <div class="diag-chart-col">
+        <div class="diag-chart-card">
+          <p class="diag-chart-title">역량 레이더</p>
+          <p class="diag-chart-hint">아래 항목을 클릭하면 도형이 실시간으로 그려집니다</p>
+          <svg id="radar-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="diag-legend-row">
+            <div class="diag-legend-item"><div class="diag-dot dot-a">A</div><span>A</span></div>
+            <div class="diag-legend-item"><div class="diag-dot dot-b">B</div><span>B</span></div>
           </div>
         </div>
       </div>
-      <div class="dec-card-body ab">
-        <div class="dec-panel opt-a">
-          <div class="dec-panel-label">옵션 A</div>
-          <div class="opt-title">같은 화면 (통합 뷰)</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>뉴스룸·마케팅 동일 URL, 동일 화면 → 개발 범위 축소</li>
-              <li>부서 간 동일 데이터 기반 소통 가능</li>
-              <li>권한 관리 단순화</li>
-              <li style="color:#9B2C2C">마케팅이 필요 없는 기사 단위 데이터, 뉴스룸이 불필요한 마케팅 채널 데이터가 혼재</li>
-            </ul>
+
+      <!-- Right: clickable blocks -->
+      <div class="diag-blocks-col">
+
+        <div class="diag-block" data-tool="GA4">
+          <div class="diag-tool-head"><span class="diag-tool-name">GA4</span><span class="diag-tool-cat">수집 플랫폼</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">이름은 알지만 열어본 적 없음</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">PV, 세션 수 읽는 수준</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">이벤트 이해, 리포트 직접 구성</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">수집 구조 이해, BQ 흐름 파악</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
           </div>
         </div>
-        <div class="dec-panel opt-b">
-          <div class="dec-panel-label">옵션 B</div>
-          <div class="opt-title">별도 뷰 (역할별 맞춤)</div>
-          <div class="dec-panel-text">
-            <ul>
-              <li>뉴스룸: 기사·유입경로·기자별 성과 중심</li>
-              <li>마케팅: 외부 채널 성과·독자 행동·구독전환 중심</li>
-              <li>각 사용자가 자기 업무에 집중 → 노이즈 감소</li>
-              <li style="color:#9B2C2C">개발 범위 증가, 두 뷰의 데이터 일관성 유지 관리 필요</li>
-            </ul>
+
+        <div class="diag-block" data-tool="BigQuery">
+          <div class="diag-tool-head"><span class="diag-tool-name">BigQuery</span><span class="diag-tool-cat">분석 도구</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">접근 권한도 없고 여는 법 모름</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">기본 쿼리 작성, 조건만 바꾸는 수준</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">JOIN, 서브쿼리, 윈도우 함수 활용</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">파티션 최적화, 스케줄 쿼리, 자동화</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
           </div>
         </div>
-      </div>
-      <div class="dec-card-footer">
-        <span class="dec-footer-label">결정:</span>
-        <button class="dec-btn opt-a" onclick="decide(7,'a',this)">옵션 A (통합)</button>
-        <button class="dec-btn opt-b" onclick="decide(7,'b',this)">옵션 B (분리)</button>
-        <button class="dec-btn hold" onclick="decide(7,'hold',this)">보류</button>
-        <span class="dec-decided-badge" id="badge-7">—</span>
-        <button class="preview-link" onclick="goToPreview('dash-screen')">화면 미리보기 (공통 대시보드) →</button>
+
+        <div class="diag-block" data-tool="Python">
+          <div class="diag-tool-head"><span class="diag-tool-name">Python</span><span class="diag-tool-cat">분석 도구</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">코드 복붙, 오류 나면 멈춤</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">pandas 기본 조작, 주어진 코드 수정</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">전처리·집계·시각화 처음부터 설계</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">API 연동, 자동화 파이프라인 구성</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+          </div>
+        </div>
+
+        <div class="diag-block" data-tool="Salesforce">
+          <div class="diag-tool-head"><span class="diag-tool-name">Salesforce 연동</span><span class="diag-tool-cat">수집 플랫폼</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">직접 꺼낼 수 있다는 생각 자체 없었음</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">여기 있다는 건 앎. 직접 연결 안 해봄</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">DBeaver · API 연동 스스로 완료</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">구조 파악, 추출 설계, 분석 흐름 구성</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+          </div>
+        </div>
+
+        <div class="diag-block" data-tool="DBeaver">
+          <div class="diag-tool-head"><span class="diag-tool-name">DBeaver</span><span class="diag-tool-cat">분석 도구</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">DB 직접 접속 개념 없음, 누군가 기다림</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">도움 받아 연결 완료, 기본 조회 가능</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">연결 설정 스스로 완료, JOIN 쿼리 작성</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">여러 DB 동시 운영, 쿼리 최적화</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+          </div>
+        </div>
+
+        <div class="diag-block" data-tool="분석기획">
+          <div class="diag-tool-head"><span class="diag-tool-name">분석 기획</span><span class="diag-tool-cat">Planning</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">시키는 것만, 다음 질문 개념 없음</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">데이터는 꺼내지만 다음 스텝 매번 물어봄</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">후속 질문 스스로 만듦, 전체 설계는 어려움</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">분석 시작부터 끝을 혼자 설계하고 이어감</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+          </div>
+        </div>
+
+        <div class="diag-block" data-tool="원인규명">
+          <div class="diag-tool-head"><span class="diag-tool-name">원인 규명</span><span class="diag-tool-cat">Diagnosis</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">이상해도 보고로 끝, 파고들 발상 없음</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">보고는 하지만 직접 파고들지 않음</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">표면 원인 찾아냄, 근본까지는 못 감</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">수집부터 적재까지 역추적, 근본 원인 찾아냄</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+          </div>
+        </div>
+
+        <div class="diag-block" data-tool="상황해석">
+          <div class="diag-tool-head"><span class="diag-tool-name">상황 해석 · 의사결정</span><span class="diag-tool-cat">Insight</span></div>
+          <div class="diag-rows">
+            <div class="diag-cell" data-lv="1"><span class="diag-lv">Lv 1</span><span class="diag-lv-name">인식 전</span><span class="diag-lv-desc">숫자 전달이 분석의 끝이라고 생각함</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="2"><span class="diag-lv">Lv 2</span><span class="diag-lv-name">기초</span><span class="diag-lv-desc">숫자 나열 수준, 의미 설명 못함</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="3"><span class="diag-lv">Lv 3</span><span class="diag-lv-name">독립 수행</span><span class="diag-lv-desc">현재 상태 설명 가능, 결정 연결은 못함</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+            <div class="diag-cell" data-lv="4"><span class="diag-lv">Lv 4</span><span class="diag-lv-name">주도·설계</span><span class="diag-lv-desc">진단 + 방향 예측 + 의사결정까지 이어감</span><div class="diag-markers"><div class="diag-marker marker-a">A</div><div class="diag-marker marker-b">B</div></div></div>
+          </div>
+        </div>
+
+        <p class="diag-note">클릭으로 표시 · 재클릭으로 해제 · 저장은 Cmd+P / Ctrl+P</p>
       </div>
     </div>
   </div>
 
-  <!-- FYI: 운영 대시보드 -->
-  <div class="dec-section">
-    <div class="fyi-box">
-      <div class="fyi-header">
-        <span class="fyi-tag">FYI · 확정</span>
-        <span class="fyi-title">운영 대시보드 — 이번 회의 결정 범위 외 (콘텐츠운영부 자체 확정)</span>
-      </div>
-      <div class="fyi-items">
-        <span class="fyi-chip">유입경로 분석 (소스·소스위치)</span>
-        <span class="fyi-chip">방문수·사용자수·조회수</span>
-        <span class="fyi-chip">포털 기사 순위 (조회·유입기여·유입량·닷컴)</span>
-        <span class="fyi-chip">사용자 행동경로 (P4 검토 중)</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="dec-section-end"></div>
-</div>
-
-<!-- ============================= PREVIEW TAB ============================= -->
-<div class="tab-content" id="tab-preview">
-  <div class="preview-wrap">
-    <!-- SIDEBAR -->
-    <div class="preview-sidebar">
-      <div class="prev-menu-group">
-        <div class="prev-menu-label"><span class="dot live"></span>실시간</div>
-        <button class="prev-menu-item active" onclick="showScreen('rep-screen',this)">대표화면</button>
-        <button class="prev-menu-item" onclick="showScreen('dash-screen',this)">공통 대시보드</button>
-        <button class="prev-menu-item confirmed-tag" onclick="showScreen('ops-screen',this)">운영 대시보드</button>
-      </div>
-      <div class="prev-menu-group">
-        <div class="prev-menu-label"><span class="dot period"></span>기간분석</div>
-        <button class="prev-menu-item" onclick="showScreen('report-screen',this)">리포트</button>
-        <button class="prev-menu-item" onclick="showScreen('article-screen',this)">기사분석</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-screen',this)">└ 랭킹</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-detail-screen',this)">└ 상세</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-bundle-screen',this)">└ 묶음</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-dept-screen',this)">└ 부서별</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-reporter-screen',this)">└ 기자별</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-edit-screen',this)">└ 편집영역별</button>
-        <button class="prev-menu-item sub" onclick="showScreen('article-login-screen',this)">└ 로그인월</button>
-      </div>
-    </div>
-
-    <!-- MAIN PREVIEW -->
-    <div class="preview-main" id="preview-main">
-
-      <!-- 대표화면 -->
-      <div class="screen-pane" id="rep-screen">
-        <div class="screen-title-bar">
-          <span class="screen-title">대표화면</span>
-          <span class="screen-user">전 구성원 · 실시간</span>
-        </div>
-        <div class="screen-desc">오늘 한국일보닷컴의 성과를 한눈에 — 잘 하고 있나, 못 하고 있나</div>
-
-        <div class="kpi-row">
-          <div class="kpi-card">
-            <div class="kpi-label">오늘 방문수</div>
-            <div class="kpi-value">182,340</div>
-            <div class="kpi-change up">▲ 전일 동시간 대비 +12.4%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">7일 평균 대비</div>
-            <div class="kpi-value">+8.1%</div>
-            <div class="kpi-change up">▲ 평균(168,420) 초과</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">오늘 조회수</div>
-            <div class="kpi-value">411,280</div>
-            <div class="kpi-change down">▼ 전일 동시간 대비 −3.2%</div>
-          </div>
-        </div>
-
-        <div class="chart-box">
-          <div class="chart-title">실시간 방문 추이 <span class="ct-right">오늘 00:00 → 현재</span></div>
-          <div class="spark-row">
-            <div class="spark-bar" style="height:20%"></div>
-            <div class="spark-bar" style="height:22%"></div>
-            <div class="spark-bar" style="height:25%"></div>
-            <div class="spark-bar" style="height:40%"></div>
-            <div class="spark-bar peak" style="height:85%"></div>
-            <div class="spark-bar peak" style="height:90%"></div>
-            <div class="spark-bar" style="height:75%"></div>
-            <div class="spark-bar" style="height:72%"></div>
-            <div class="spark-bar" style="height:68%"></div>
-            <div class="spark-bar" style="height:62%"></div>
-            <div class="spark-bar" style="height:58%"></div>
-            <div class="spark-bar" style="height:55%"></div>
-            <div class="spark-bar" style="height:70%"></div>
-            <div class="spark-bar peak" style="height:100%"></div>
-            <div class="spark-bar" style="height:88%"></div>
-            <div class="spark-bar" style="height:76%"></div>
-            <div class="spark-bar" style="height:65%"></div>
-            <div class="spark-bar" style="height:55%"></div>
-            <div class="spark-bar" style="height:48%"></div>
-            <div class="spark-bar" style="height:40%"></div>
-            <div class="spark-bar" style="height:38%"></div>
-            <div class="spark-bar" style="height:32%"></div>
-            <div class="spark-bar" style="height:28%"></div>
-            <div class="spark-bar" style="height:18%"></div>
-          </div>
-          <div class="spark-labels">
-            <span>0시</span><span>3시</span><span>6시</span><span>9시</span><span>12시</span><span>15시</span><span>18시</span><span>21시</span><span>현재</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 공통 대시보드 -->
-      <div class="screen-pane" id="dash-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">공통 대시보드</span>
-          <span class="screen-user">뉴스룸 · 실시간</span>
-        </div>
-        <div class="screen-desc">오늘 성과 요약 — 얼마나 들어왔나, 어디서, 왜, 무엇이 잘 팔리나</div>
-
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">방문수</div><div class="kpi-value">182,340</div><div class="kpi-change up">▲ +12.4%</div></div>
-          <div class="kpi-card"><div class="kpi-label">조회수</div><div class="kpi-value">411,280</div><div class="kpi-change down">▼ −3.2%</div></div>
-          <div class="kpi-card"><div class="kpi-label">조회시간(평균)</div><div class="kpi-value">1:42</div><div class="kpi-change neutral">→ 전일 동일</div></div>
-        </div>
-
-        <!-- 유입경로 (P1·P2) -->
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입 소스·소스위치 (P1·P2)</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row">
-                <div class="sbar-label">네이버</div>
-                <div class="sbar-track"><div class="sbar-seg" style="width:52%;background:#4299E1"></div><div class="sbar-seg" style="width:18%;background:#90CDF4"></div></div>
-                <div class="sbar-count">94,820</div>
-              </div>
-              <div class="sbar-row">
-                <div class="sbar-label">다음</div>
-                <div class="sbar-track"><div class="sbar-seg" style="width:22%;background:#4299E1"></div><div class="sbar-seg" style="width:8%;background:#90CDF4"></div></div>
-                <div class="sbar-count">38,290</div>
-              </div>
-              <div class="sbar-row">
-                <div class="sbar-label">카카오</div>
-                <div class="sbar-track"><div class="sbar-seg" style="width:11%;background:#4299E1"></div></div>
-                <div class="sbar-count">19,410</div>
-              </div>
-              <div class="sbar-row">
-                <div class="sbar-label">직접유입</div>
-                <div class="sbar-track"><div class="sbar-seg" style="width:8%;background:#68D391"></div></div>
-                <div class="sbar-count">14,820</div>
-              </div>
-              <div class="sbar-row">
-                <div class="sbar-label">구글</div>
-                <div class="sbar-track"><div class="sbar-seg" style="width:5%;background:#F6AD55"></div></div>
-                <div class="sbar-count">9,110</div>
-              </div>
-            </div>
-            <div style="margin-top:10px;font-size:11px;color:#64748B">■ 관련기사 &nbsp;■ 언론사채널</div>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입기사 TOP 5 (왜 들어왔나)</div>
-            <table class="data-table">
-              <thead><tr><th>#</th><th>기사 제목</th><th class="num">방문수</th></tr></thead>
-              <tbody>
-                <tr><td class="rank-num">1</td><td class="art-title">정부 경제정책 발표, 주요 내용 정리...</td><td class="num">18,420</td></tr>
-                <tr><td class="rank-num">2</td><td class="art-title">올여름 장마 시작, 전국 강수량 예보...</td><td class="num">14,130</td></tr>
-                <tr><td class="rank-num">3</td><td class="art-title">국내 소비심리지수 3개월 연속 상승...</td><td class="num">11,880</td></tr>
-                <tr><td class="rank-num">4</td><td class="art-title">오늘 날씨 서울 30도, 폭염 시작...</td><td class="num">9,420</td></tr>
-                <tr><td class="rank-num">5</td><td class="art-title">국가대표 평가전, 2대1 역전승 마무리...</td><td class="num">8,310</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- P3 검토 항목 -->
-        <div class="review-dim-card state-undecided" id="review-box-1" style="margin-top:12px">
-          <div class="review-status-label">
-            <button class="dec-link" onclick="goToDecision('card-1')">← 결정 사항 #1</button>
-          </div>
-          <div class="review-content">
-            <div class="chart-box" style="margin-bottom:0;border:none;padding:0">
-              <div class="chart-title">시간대별 방문수·조회수</div>
-              <div class="spark-row">
-                <div class="spark-bar" style="height:25%"></div>
-                <div class="spark-bar" style="height:22%"></div>
-                <div class="spark-bar" style="height:28%"></div>
-                <div class="spark-bar peak" style="height:88%"></div>
-                <div class="spark-bar peak" style="height:95%"></div>
-                <div class="spark-bar" style="height:78%"></div>
-                <div class="spark-bar" style="height:72%"></div>
-                <div class="spark-bar" style="height:68%"></div>
-                <div class="spark-bar" style="height:100%"></div>
-                <div class="spark-bar" style="height:82%"></div>
-                <div class="spark-bar" style="height:65%"></div>
-                <div class="spark-bar" style="height:55%"></div>
-              </div>
-              <div class="spark-labels"><span>0시</span><span>3시</span><span>6시</span><span>9시</span><span>12시</span><span>15시</span><span>18시</span><span>21시</span><span>현재</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- P4 검토 항목 -->
-        <div class="review-dim-card state-undecided" id="review-box-2" style="margin-top:12px">
-          <div class="review-status-label">
-            <button class="dec-link" onclick="goToDecision('card-2')">← 결정 사항 #2</button>
-          </div>
-          <div class="review-content">
-            <div class="inner-tabs" id="platform-tabs">
-              <button class="inner-tab active">닷컴</button>
-              <button class="inner-tab">네이버</button>
-              <button class="inner-tab">다음</button>
-              <button class="inner-tab">내 부서</button>
-              <button class="inner-tab">내 기사</button>
-            </div>
-            <table class="data-table">
-              <thead><tr><th>#</th><th>기사 제목</th><th class="num">조회수</th><th class="num">조회시간</th></tr></thead>
-              <tbody>
-                <tr><td class="rank-num">1</td><td class="art-title">정부 경제정책 발표, 주요 내용 정리...</td><td class="num">31,420</td><td class="num">2:14</td></tr>
-                <tr><td class="rank-num">2</td><td class="art-title">올여름 장마 시작, 전국 강수량 예보...</td><td class="num">28,130</td><td class="num">1:58</td></tr>
-                <tr><td class="rank-num">3</td><td class="art-title">국내 소비심리지수 3개월 연속 상승...</td><td class="num">24,880</td><td class="num">1:42</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 운영 대시보드 -->
-      <div class="screen-pane" id="ops-screen" style="display:none">
-        <div class="confirmed-screen-badge">✓ 확정 완료 — 콘텐츠운영부 자체 확정</div>
-        <div class="screen-title-bar">
-          <span class="screen-title">운영 대시보드</span>
-          <span class="screen-user">콘텐츠운영부 · 실시간</span>
-        </div>
-        <div class="screen-desc">지금 닷컴 운영 성과 — 어디서, 어떻게, 어떤 기사로 들어오고 있나</div>
-
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">방문수</div><div class="kpi-value">182,340</div><div class="kpi-change up">▲ +12.4%</div></div>
-          <div class="kpi-card"><div class="kpi-label">사용자수</div><div class="kpi-value">141,290</div><div class="kpi-change up">▲ +9.1%</div></div>
-          <div class="kpi-card"><div class="kpi-label">조회수</div><div class="kpi-value">411,280</div><div class="kpi-change down">▼ −3.2%</div></div>
-        </div>
-
-        <div class="chart-box">
-          <div class="chart-title">포털 기사 순위 (누적·평균)</div>
-          <table class="data-table">
-            <thead><tr><th>기사</th><th class="num">네이버 조회</th><th class="num">유입기여</th><th class="num">유입량</th><th class="num">닷컴 조회</th></tr></thead>
-            <tbody>
-              <tr><td class="art-title">정부 경제정책 발표...</td><td class="num">88,420</td><td class="num">12,840</td><td class="num">9,120</td><td class="num">31,420</td></tr>
-              <tr><td class="art-title">전국 장마 시작...</td><td class="num">72,130</td><td class="num">10,230</td><td class="num">7,880</td><td class="num">28,130</td></tr>
-              <tr><td class="art-title">소비심리지수 상승...</td><td class="num">61,880</td><td class="num">8,440</td><td class="num">5,920</td><td class="num">24,880</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 리포트 -->
-      <div class="screen-pane" id="report-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">리포트</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">특정기간 닷컴 성과 요약 — 누가, 어디서, 어떻게, 왜 들어와서 무엇을 하고 나갔나</div>
-
-        <div class="filter-bar">
-          <span class="filter-label">기간</span>
-          <div class="filter-pills">
-            <button class="fpill">일별</button>
-            <button class="fpill active">주별</button>
-            <button class="fpill">월별</button>
-            <button class="fpill">특정기간</button>
-          </div>
-          <span class="filter-label" style="margin-left:8px">2026.04.21 ~ 04.27</span>
-        </div>
-
-        <!-- 요약 (P1) -->
-        <div class="chart-box">
-          <div class="chart-title">요약 성과지표 (P1)</div>
-          <table class="data-table">
-            <thead><tr><th>날짜</th><th class="num">출고기사</th><th class="num">방문수</th><th class="num">사용자</th><th class="num">조회수</th><th class="num">방문당조회</th><th class="num">열독율</th></tr></thead>
-            <tbody>
-              <tr><td>04.21(월)</td><td class="num">48</td><td class="num">198,420</td><td class="num">154,130</td><td class="num">441,280</td><td class="num">2.22</td><td class="num">34.1%</td></tr>
-              <tr><td>04.22(화)</td><td class="num">52</td><td class="num">212,840</td><td class="num">165,420</td><td class="num">478,920</td><td class="num">2.25</td><td class="num">35.8%</td></tr>
-              <tr><td>04.23(수)</td><td class="num">45</td><td class="num">187,230</td><td class="num">144,880</td><td class="num">413,140</td><td class="num">2.21</td><td class="num">33.2%</td></tr>
-              <tr><td>04.24(목)</td><td class="num">51</td><td class="num">201,180</td><td class="num">156,290</td><td class="num">451,420</td><td class="num">2.24</td><td class="num">34.7%</td></tr>
-              <tr style="font-weight:700;background:#F7F8FA"><td>주 합계</td><td class="num">196</td><td class="num">799,670</td><td class="num">620,720</td><td class="num">1,784,760</td><td class="num">2.23 avg</td><td class="num">34.5% avg</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- 결정 사항 #3 -->
-        <div class="review-dim-card state-undecided" id="review-box-3">
-          <div class="review-status-label">
-            <button class="dec-link" onclick="goToDecision('card-3')">← 결정 사항 #3</button>
-          </div>
-          <div class="review-content">
-            <div class="kpi-row" style="margin-bottom:0">
-              <div class="kpi-card"><div class="kpi-label">방문수</div><div class="kpi-value">799,670</div><div class="kpi-change up">▲ 전주 대비 +5.2%</div></div>
-              <div class="kpi-card"><div class="kpi-label">조회수</div><div class="kpi-value">1,784,760</div><div class="kpi-change down">▼ 전주 대비 −1.8%</div></div>
-              <div class="kpi-card"><div class="kpi-label">열독율</div><div class="kpi-value">34.5%</div><div class="kpi-change up">▲ 전주 대비 +0.8%p</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 결정 사항 #4 -->
-        <div class="review-dim-card state-undecided" id="review-box-4">
-          <div class="review-status-label">
-            <button class="dec-link" onclick="goToDecision('card-4')">← 결정 사항 #4</button>
-          </div>
-          <div class="review-content">
-            <div class="kpi-row" style="margin-bottom:0">
-              <div class="kpi-card"><div class="kpi-label">주간 출고기사</div><div class="kpi-value">196건</div><div class="kpi-change neutral">전주(204건) 대비 −8</div></div>
-              <div class="kpi-card"><div class="kpi-label">타사 평균 대비</div><div class="kpi-value">−12%</div><div class="kpi-change down">▼ 경쟁사 평균 223건</div></div>
-              <div class="kpi-card"><div class="kpi-label">출고-조회 효율</div><div class="kpi-value">9,105</div><div class="kpi-change up">▲ 기사당 평균 조회</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 기사분석 랭킹 -->
-      <div class="screen-pane" id="article-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">특정기간 기사 레이어 성과 — 얼마나, 왜 팔렸나</div>
-
-        <!-- 결정 사항 #5: 구조 결정 -->
-        <div class="review-dim-card state-undecided" id="review-box-5">
-          <div class="review-status-label">
-            <button class="dec-link" onclick="goToDecision('card-5')">← 결정 사항 #5 · 랭킹 세분화 구조</button>
-          </div>
-          <div class="review-content" style="font-size:12px;color:#4A5568;display:flex;gap:16px">
-            <span><strong>옵션 A 선택 시</strong> → 부서별·기자별이 이 화면 내 탭으로 표시</span>
-            <span><strong>옵션 B 선택 시</strong> → 사이드바에 별도 메뉴로 분리</span>
-          </div>
-        </div>
-
-        <!-- 결정 사항 #6: 출시 범위 -->
-        <div class="review-dim-card state-undecided" id="review-box-6">
-          <div class="review-status-label">
-            <button class="dec-link" onclick="goToDecision('card-6')">← 결정 사항 #6 · 1차 출시 범위</button>
-          </div>
-          <div class="review-content" style="font-size:12px;color:#4A5568;display:flex;gap:16px">
-            <span><strong>옵션 A 선택 시</strong> → 7개 서브메뉴 전체 개발·출시</span>
-            <span><strong>옵션 B 선택 시</strong> → 랭킹·상세만 1차 출시, 나머지 2차</span>
-          </div>
-        </div>
-
-        <div class="filter-bar">
-          <span class="filter-label">기간</span>
-          <div class="filter-pills">
-            <button class="fpill active">최근 7일</button>
-            <button class="fpill">최근 30일</button>
-            <button class="fpill">특정기간</button>
-          </div>
-        </div>
-
-        <div class="chart-box">
-          <div class="chart-title">기사 랭킹 (P1) <span class="ct-right">닷컴·네이버·다음 조회수 기준</span></div>
-          <table class="data-table">
-            <thead><tr><th>#</th><th>기사 제목</th><th class="num">닷컴 조회</th><th class="num">네이버</th><th class="num">다음</th><th class="num">열독율</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-num">1</td><td class="art-title">공공요금 개편안 발표, 적용 시기는...</td><td class="num">312,840</td><td class="num">881,420</td><td class="num">214,130</td><td class="num">42.1%</td></tr>
-              <tr><td class="rank-num">2</td><td class="art-title">올해 수출 실적 집계, 반도체 호조...</td><td class="num">287,130</td><td class="num">712,880</td><td class="num">188,420</td><td class="num">38.9%</td></tr>
-              <tr><td class="rank-num">3</td><td class="art-title">국내 소비심리지수 3개월 연속 상승...</td><td class="num">241,880</td><td class="num">634,210</td><td class="num">162,840</td><td class="num">35.4%</td></tr>
-              <tr><td class="rank-num">4</td><td class="art-title">국가대표 평가전, 2대1 역전승 마무리...</td><td class="num">198,420</td><td class="num">548,130</td><td class="num">141,290</td><td class="num">44.2%</td></tr>
-              <tr><td class="rank-num">5</td><td class="art-title">도심 재개발 계획 발표, 이주 일정은...</td><td class="num">174,130</td><td class="num">421,880</td><td class="num">118,420</td><td class="num">31.8%</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 기사분석 상세 -->
-      <div class="screen-pane" id="article-detail-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석 · 상세</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc" style="font-weight:600;color:#1A202C">공공요금 개편안 발표, 소비자 영향은</div>
-
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">누적 조회수</div><div class="kpi-value">312,840</div><div class="kpi-change up">▲ 전체 기사 평균 대비 +8.2배</div></div>
-          <div class="kpi-card"><div class="kpi-label">열독율</div><div class="kpi-value">42.1%</div><div class="kpi-change up">▲ 평균(34.5%) 대비 +7.6%p</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 조회시간</div><div class="kpi-value">3:18</div><div class="kpi-change up">▲ 긴 글 평균 대비 우수</div></div>
-        </div>
-
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입경로 (P1·P2)</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row"><div class="sbar-label">네이버 관련</div><div class="sbar-track"><div class="sbar-seg" style="width:61%;background:#4299E1"></div></div><div class="sbar-count">191,230</div></div>
-              <div class="sbar-row"><div class="sbar-label">다음 메인</div><div class="sbar-track"><div class="sbar-seg" style="width:18%;background:#F6AD55"></div></div><div class="sbar-count">56,310</div></div>
-              <div class="sbar-row"><div class="sbar-label">카카오톡</div><div class="sbar-track"><div class="sbar-seg" style="width:10%;background:#68D391"></div></div><div class="sbar-count">31,280</div></div>
-              <div class="sbar-row"><div class="sbar-label">직접유입</div><div class="sbar-track"><div class="sbar-seg" style="width:6%;background:#CBD5E0"></div></div><div class="sbar-count">18,810</div></div>
-            </div>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">시간대별 조회 추이 (P2)</div>
-            <div class="spark-row">
-              <div class="spark-bar" style="height:5%"></div>
-              <div class="spark-bar" style="height:5%"></div>
-              <div class="spark-bar" style="height:8%"></div>
-              <div class="spark-bar peak" style="height:100%"></div>
-              <div class="spark-bar peak" style="height:92%"></div>
-              <div class="spark-bar" style="height:75%"></div>
-              <div class="spark-bar" style="height:60%"></div>
-              <div class="spark-bar" style="height:48%"></div>
-              <div class="spark-bar" style="height:38%"></div>
-              <div class="spark-bar" style="height:28%"></div>
-              <div class="spark-bar" style="height:20%"></div>
-              <div class="spark-bar" style="height:12%"></div>
-            </div>
-            <div class="spark-labels"><span>0시</span><span>3시</span><span>6시</span><span>9시</span><span>12시</span><span>15시</span><span>18시</span><span>21시</span></div>
-          </div>
-        </div>
-
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">네이버 조회수</div><div class="kpi-value">881,420</div><div class="kpi-change up">▲ 포털 전체 1위</div></div>
-          <div class="kpi-card"><div class="kpi-label">다음 조회수</div><div class="kpi-value">214,130</div><div class="kpi-change up">▲ 포털 전체 2위</div></div>
-        </div>
-      </div>
-
-      <!-- ── 묶음 ── -->
-      <div class="screen-pane" id="article-bundle-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석 · 묶음</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">기사 묶음(시리즈) 단위 성과 — 첫 회부터 최근 회까지 얼마나, 왜 팔렸나</div>
-        <div class="filter-bar">
-          <span class="filter-label">묶음 선택</span>
-          <div class="filter-pills">
-            <button class="fpill active">수도권 기획 시리즈</button>
-            <button class="fpill">AI 기획 5부작</button>
-            <button class="fpill">부동산 심층분석</button>
-          </div>
-          <div class="filter-pills" style="margin-left:8px">
-            <button class="fpill active">최근 30일</button>
-            <button class="fpill">특정기간</button>
-          </div>
-        </div>
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">시리즈 기사 수</div><div class="kpi-value">12건</div><div class="kpi-change neutral">첫 회 04.01 ~</div></div>
-          <div class="kpi-card"><div class="kpi-label">누적 조회수</div><div class="kpi-value">1,284,420</div><div class="kpi-change up">▲ 시리즈 평균 대비 +34%</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 열독율</div><div class="kpi-value">41.2%</div><div class="kpi-change up">▲ 전체 평균 대비 +6.7%p</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 조회시간</div><div class="kpi-value">3:04</div><div class="kpi-change up">▲ 장문 평균 대비 우수</div></div>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">회차별 조회수 추이</div>
-          <div class="spark-row">
-            <div class="spark-bar" style="height:55%"></div>
-            <div class="spark-bar peak" style="height:100%"></div>
-            <div class="spark-bar" style="height:82%"></div>
-            <div class="spark-bar" style="height:74%"></div>
-            <div class="spark-bar" style="height:68%"></div>
-            <div class="spark-bar" style="height:79%"></div>
-            <div class="spark-bar" style="height:60%"></div>
-            <div class="spark-bar" style="height:55%"></div>
-            <div class="spark-bar" style="height:48%"></div>
-            <div class="spark-bar" style="height:52%"></div>
-            <div class="spark-bar" style="height:44%"></div>
-            <div class="spark-bar" style="height:38%"></div>
-          </div>
-          <div class="spark-labels"><span>1회</span><span>2회</span><span>3회</span><span>4회</span><span>5회</span><span>6회</span><span>7회</span><span>8회</span><span>9회</span><span>10회</span><span>11회</span><span>12회</span></div>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">기사 목록</div>
-          <table class="data-table">
-            <thead><tr><th>회차</th><th>제목</th><th class="num">조회수</th><th class="num">열독율</th><th class="num">네이버</th><th class="num">다음</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-num">1회</td><td class="art-title">[기획①] 수도권 주거 현황 심층 분석...</td><td class="num">184,200</td><td class="num">44.1%</td><td class="num">421,880</td><td class="num">98,420</td></tr>
-              <tr><td class="rank-num">2회</td><td class="art-title">[기획②] 고령화 시대 노인 돌봄 실태...</td><td class="num">228,140</td><td class="num">46.8%</td><td class="num">584,210</td><td class="num">121,300</td></tr>
-              <tr><td class="rank-num">3회</td><td class="art-title">[기획③] 중소기업 구인난 현장을 가다...</td><td class="num">142,880</td><td class="num">38.2%</td><td class="num">318,440</td><td class="num">74,810</td></tr>
-              <tr><td class="rank-num">4회</td><td class="art-title">[기획④] 청년 창업 생태계 변화 진단...</td><td class="num">98,420</td><td class="num">35.9%</td><td class="num">224,130</td><td class="num">52,140</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입경로 (묶음 합산)</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row"><div class="sbar-label">네이버 관련</div><div class="sbar-track"><div class="sbar-seg" style="width:58%;background:#4299E1"></div></div><div class="sbar-count">745,360</div></div>
-              <div class="sbar-row"><div class="sbar-label">다음 메인</div><div class="sbar-track"><div class="sbar-seg" style="width:20%;background:#F6AD55"></div></div><div class="sbar-count">256,880</div></div>
-              <div class="sbar-row"><div class="sbar-label">직접유입</div><div class="sbar-track"><div class="sbar-seg" style="width:12%;background:#68D391"></div></div><div class="sbar-count">154,130</div></div>
-              <div class="sbar-row"><div class="sbar-label">카카오톡</div><div class="sbar-track"><div class="sbar-seg" style="width:7%;background:#B794F4"></div></div><div class="sbar-count">90,040</div></div>
-            </div>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">행동분석</div>
-            <table class="data-table">
-              <thead><tr><th>항목</th><th class="num">합계</th><th class="num">기사당 평균</th></tr></thead>
-              <tbody>
-                <tr><td>댓글</td><td class="num">8,420</td><td class="num">702</td></tr>
-                <tr><td>구독</td><td class="num">1,840</td><td class="num">153</td></tr>
-                <tr><td>로그인</td><td class="num">4,210</td><td class="num">351</td></tr>
-                <tr><td>추천기사 클릭</td><td class="num">22,480</td><td class="num">1,873</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── 부서별 ── -->
-      <div class="screen-pane" id="article-dept-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석 · 부서별</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">부서 단위 기사 성과 — 얼마나, 왜 팔렸나</div>
-        <div class="filter-bar">
-          <span class="filter-label">부서</span>
-          <div class="filter-pills">
-            <button class="fpill active">정치부</button>
-            <button class="fpill">경제부</button>
-            <button class="fpill">사회부</button>
-            <button class="fpill">국제부</button>
-            <button class="fpill">문화부</button>
-          </div>
-          <div class="filter-pills" style="margin-left:8px">
-            <button class="fpill active">최근 7일</button>
-            <button class="fpill">최근 30일</button>
-          </div>
-        </div>
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">출고기사</div><div class="kpi-value">38건</div><div class="kpi-change neutral">최근 7일</div></div>
-          <div class="kpi-card"><div class="kpi-label">누적 조회수</div><div class="kpi-value">2,184,420</div><div class="kpi-change up">▲ 부서 중 1위</div></div>
-          <div class="kpi-card"><div class="kpi-label">기사당 평균 조회</div><div class="kpi-value">57,485</div><div class="kpi-change up">▲ 전체 평균 대비 +2.1배</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 열독율</div><div class="kpi-value">36.8%</div><div class="kpi-change up">▲ 전체 평균 대비 +2.3%p</div></div>
-        </div>
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">일별 조회수 추이</div>
-            <div class="spark-row">
-              <div class="spark-bar peak" style="height:88%"></div>
-              <div class="spark-bar" style="height:72%"></div>
-              <div class="spark-bar peak" style="height:100%"></div>
-              <div class="spark-bar" style="height:84%"></div>
-              <div class="spark-bar" style="height:68%"></div>
-              <div class="spark-bar" style="height:58%"></div>
-              <div class="spark-bar" style="height:62%"></div>
-            </div>
-            <div class="spark-labels"><span>04.21</span><span>04.22</span><span>04.23</span><span>04.24</span><span>04.25</span><span>04.26</span><span>04.27</span></div>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입경로</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row"><div class="sbar-label">네이버</div><div class="sbar-track"><div class="sbar-seg" style="width:62%;background:#4299E1"></div></div><div class="sbar-count">1,354,340</div></div>
-              <div class="sbar-row"><div class="sbar-label">다음</div><div class="sbar-track"><div class="sbar-seg" style="width:19%;background:#F6AD55"></div></div><div class="sbar-count">415,040</div></div>
-              <div class="sbar-row"><div class="sbar-label">직접유입</div><div class="sbar-track"><div class="sbar-seg" style="width:10%;background:#68D391"></div></div><div class="sbar-count">218,440</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">기사 목록 (조회수 순)</div>
-          <table class="data-table">
-            <thead><tr><th>#</th><th>제목</th><th class="num">조회수</th><th class="num">열독율</th><th class="num">네이버</th><th class="num">다음</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-num">1</td><td class="art-title">공공요금 개편안 발표, 적용 시기는...</td><td class="num">312,840</td><td class="num">42.1%</td><td class="num">881,420</td><td class="num">214,130</td></tr>
-              <tr><td class="rank-num">2</td><td class="art-title">도심 재개발 계획 발표, 이주 일정은...</td><td class="num">287,130</td><td class="num">38.4%</td><td class="num">712,880</td><td class="num">188,420</td></tr>
-              <tr><td class="rank-num">3</td><td class="art-title">올해 경제성장률 전망 상향 조정 배경...</td><td class="num">241,880</td><td class="num">35.2%</td><td class="num">634,210</td><td class="num">162,840</td></tr>
-              <tr><td class="rank-num">4</td><td class="art-title">내년 최저임금 인상폭 논의 본격화...</td><td class="num">198,420</td><td class="num">33.8%</td><td class="num">488,130</td><td class="num">128,420</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ── 기자별 ── -->
-      <div class="screen-pane" id="article-reporter-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석 · 기자별</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">기자 단위 기사 성과 — 얼마나, 왜 팔렸나</div>
-        <div class="filter-bar">
-          <span class="filter-label">기자</span>
-          <div class="filter-pills">
-            <button class="fpill active">A 기자</button>
-            <button class="fpill">B 기자</button>
-            <button class="fpill">C 기자</button>
-          </div>
-          <div class="filter-pills" style="margin-left:8px">
-            <button class="fpill active">최근 30일</button>
-            <button class="fpill">특정기간</button>
-          </div>
-        </div>
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">출고기사</div><div class="kpi-value">24건</div><div class="kpi-change neutral">최근 30일</div></div>
-          <div class="kpi-card"><div class="kpi-label">누적 조회수</div><div class="kpi-value">984,210</div><div class="kpi-change up">▲ 정치부 기자 중 2위</div></div>
-          <div class="kpi-card"><div class="kpi-label">기사당 평균 조회</div><div class="kpi-value">41,008</div><div class="kpi-change up">▲ 부서 평균 대비 +18%</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 열독율</div><div class="kpi-value">38.4%</div><div class="kpi-change up">▲ 부서 평균 대비 +1.6%p</div></div>
-        </div>
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">일별 조회수 추이</div>
-            <div class="spark-row">
-              <div class="spark-bar" style="height:40%"></div>
-              <div class="spark-bar" style="height:35%"></div>
-              <div class="spark-bar peak" style="height:100%"></div>
-              <div class="spark-bar" style="height:88%"></div>
-              <div class="spark-bar" style="height:60%"></div>
-              <div class="spark-bar" style="height:42%"></div>
-              <div class="spark-bar" style="height:38%"></div>
-            </div>
-            <div class="spark-labels"><span>04.21</span><span>04.22</span><span>04.23</span><span>04.24</span><span>04.25</span><span>04.26</span><span>04.27</span></div>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입경로</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row"><div class="sbar-label">네이버</div><div class="sbar-track"><div class="sbar-seg" style="width:55%;background:#4299E1"></div></div><div class="sbar-count">541,320</div></div>
-              <div class="sbar-row"><div class="sbar-label">다음</div><div class="sbar-track"><div class="sbar-seg" style="width:22%;background:#F6AD55"></div></div><div class="sbar-count">216,530</div></div>
-              <div class="sbar-row"><div class="sbar-label">카카오톡</div><div class="sbar-track"><div class="sbar-seg" style="width:12%;background:#B794F4"></div></div><div class="sbar-count">118,110</div></div>
-              <div class="sbar-row"><div class="sbar-label">직접유입</div><div class="sbar-track"><div class="sbar-seg" style="width:8%;background:#68D391"></div></div><div class="sbar-count">78,740</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">기사 목록 (조회수 순)</div>
-          <table class="data-table">
-            <thead><tr><th>#</th><th>제목</th><th class="num">조회수</th><th class="num">열독율</th><th class="num">네이버</th><th class="num">다음</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-num">1</td><td class="art-title">공공요금 개편안 발표, 적용 시기는...</td><td class="num">312,840</td><td class="num">42.1%</td><td class="num">881,420</td><td class="num">214,130</td></tr>
-              <tr><td class="rank-num">2</td><td class="art-title">내년 최저임금 인상폭 논의 본격화...</td><td class="num">198,420</td><td class="num">36.8%</td><td class="num">488,130</td><td class="num">128,420</td></tr>
-              <tr><td class="rank-num">3</td><td class="art-title">탄소중립 로드맵 1년, 현장은 지금...</td><td class="num">141,880</td><td class="num">39.2%</td><td class="num">348,210</td><td class="num">88,440</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ── 편집영역별 ── -->
-      <div class="screen-pane" id="article-edit-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석 · 편집영역별</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">편집 영역에 게재된 기사 성과 — 어떤 영역의 기사가 얼마나 팔렸나</div>
-        <div class="filter-bar">
-          <span class="filter-label">편집영역</span>
-          <div class="filter-pills">
-            <button class="fpill active">메인 1영역</button>
-            <button class="fpill">메인 2영역</button>
-            <button class="fpill">메인 4영역</button>
-            <button class="fpill">사이드 1영역</button>
-          </div>
-          <div class="filter-pills" style="margin-left:8px">
-            <button class="fpill active">최근 7일</button>
-            <button class="fpill">특정기간</button>
-          </div>
-        </div>
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">게재 기사 수</div><div class="kpi-value">18건</div><div class="kpi-change neutral">최근 7일</div></div>
-          <div class="kpi-card"><div class="kpi-label">누적 조회수</div><div class="kpi-value">1,842,130</div><div class="kpi-change up">▲ 영역 중 최고</div></div>
-          <div class="kpi-card"><div class="kpi-label">기사당 평균 조회</div><div class="kpi-value">102,340</div><div class="kpi-change up">▲ 전체 평균 대비 +3.8배</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 열독율</div><div class="kpi-value">40.1%</div><div class="kpi-change up">▲ 전체 평균 대비 +5.6%p</div></div>
-        </div>
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">행동분석 합계</div>
-            <table class="data-table">
-              <thead><tr><th>항목</th><th class="num">합계</th><th class="num">기사당 평균</th></tr></thead>
-              <tbody>
-                <tr><td>댓글</td><td class="num">14,280</td><td class="num">793</td></tr>
-                <tr><td>좋아요</td><td class="num">8,420</td><td class="num">468</td></tr>
-                <tr><td>구독</td><td class="num">3,140</td><td class="num">174</td></tr>
-                <tr><td>추천기사 클릭</td><td class="num">38,420</td><td class="num">2,134</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입경로</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row"><div class="sbar-label">네이버 메인</div><div class="sbar-track"><div class="sbar-seg" style="width:68%;background:#4299E1"></div></div><div class="sbar-count">1,252,650</div></div>
-              <div class="sbar-row"><div class="sbar-label">다음 메인</div><div class="sbar-track"><div class="sbar-seg" style="width:18%;background:#F6AD55"></div></div><div class="sbar-count">331,580</div></div>
-              <div class="sbar-row"><div class="sbar-label">직접유입</div><div class="sbar-track"><div class="sbar-seg" style="width:8%;background:#68D391"></div></div><div class="sbar-count">147,370</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">기사 목록</div>
-          <table class="data-table">
-            <thead><tr><th>#</th><th>제목</th><th class="num">조회수</th><th class="num">열독율</th><th class="num">게재시간</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-num">1</td><td class="art-title">공공요금 개편안 발표, 적용 시기는...</td><td class="num">312,840</td><td class="num">42.1%</td><td>04.23 09:10</td></tr>
-              <tr><td class="rank-num">2</td><td class="art-title">국가대표 평가전, 2대1 역전승 마무리...</td><td class="num">241,880</td><td class="num">44.2%</td><td>04.22 23:48</td></tr>
-              <tr><td class="rank-num">3</td><td class="art-title">국내 소비심리지수 3개월 연속 상승...</td><td class="num">198,420</td><td class="num">35.4%</td><td>04.21 08:55</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ── 로그인월 ── -->
-      <div class="screen-pane" id="article-login-screen" style="display:none">
-        <div class="screen-title-bar">
-          <span class="screen-title">기사분석 · 로그인월</span>
-          <span class="screen-user">뉴스룸·운영부·마케팅 · 특정기간</span>
-        </div>
-        <div class="screen-desc">로그인월 적용 기사 성과 — 구독·로그인 전환에 얼마나 기여했나</div>
-        <div class="filter-bar">
-          <span class="filter-label">기간</span>
-          <div class="filter-pills">
-            <button class="fpill active">최근 30일</button>
-            <button class="fpill">특정기간</button>
-          </div>
-          <span class="filter-label" style="margin-left:8px">로그인월 적용 기사: <strong>총 14건</strong></span>
-        </div>
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">적용 기사 수</div><div class="kpi-value">14건</div><div class="kpi-change neutral">최근 30일</div></div>
-          <div class="kpi-card"><div class="kpi-label">누적 조회수</div><div class="kpi-value">624,280</div><div class="kpi-change up">▲ 기사당 평균 44,591</div></div>
-          <div class="kpi-card"><div class="kpi-label">로그인 전환</div><div class="kpi-value">18,420</div><div class="kpi-change up">▲ 전환율 2.95%</div></div>
-          <div class="kpi-card"><div class="kpi-label">구독 전환</div><div class="kpi-value">4,130</div><div class="kpi-change up">▲ 로그인 대비 22.4%</div></div>
-        </div>
-        <div class="inflow-box">
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">일별 로그인 전환 추이</div>
-            <div class="spark-row">
-              <div class="spark-bar" style="height:45%"></div>
-              <div class="spark-bar" style="height:52%"></div>
-              <div class="spark-bar peak" style="height:100%"></div>
-              <div class="spark-bar peak" style="height:92%"></div>
-              <div class="spark-bar" style="height:68%"></div>
-              <div class="spark-bar" style="height:58%"></div>
-              <div class="spark-bar" style="height:48%"></div>
-            </div>
-            <div class="spark-labels"><span>04.21</span><span>04.22</span><span>04.23</span><span>04.24</span><span>04.25</span><span>04.26</span><span>04.27</span></div>
-          </div>
-          <div class="chart-box" style="margin-bottom:0">
-            <div class="chart-title">유입경로</div>
-            <div class="sbar-wrap">
-              <div class="sbar-row"><div class="sbar-label">네이버</div><div class="sbar-track"><div class="sbar-seg" style="width:48%;background:#4299E1"></div></div><div class="sbar-count">299,650</div></div>
-              <div class="sbar-row"><div class="sbar-label">직접유입</div><div class="sbar-track"><div class="sbar-seg" style="width:28%;background:#68D391"></div></div><div class="sbar-count">174,800</div></div>
-              <div class="sbar-row"><div class="sbar-label">다음</div><div class="sbar-track"><div class="sbar-seg" style="width:14%;background:#F6AD55"></div></div><div class="sbar-count">87,400</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">기사 목록</div>
-          <table class="data-table">
-            <thead><tr><th>#</th><th>제목</th><th class="num">조회수</th><th class="num">로그인전환</th><th class="num">구독전환</th><th class="num">열독율</th></tr></thead>
-            <tbody>
-              <tr><td class="rank-num">1</td><td class="art-title">[단독] 주요 기업 ESG 경영 실태 점검...</td><td class="num">148,420</td><td class="num">6,840</td><td class="num">1,420</td><td class="num">51.2%</td></tr>
-              <tr><td class="rank-num">2</td><td class="art-title">[심층] 대한민국 연금 개혁 전망...</td><td class="num">98,140</td><td class="num">4,210</td><td class="num">980</td><td class="num">48.8%</td></tr>
-              <tr><td class="rank-num">3</td><td class="art-title">[인터뷰] 경제부총리 단독 대담...</td><td class="num">72,880</td><td class="num">3,140</td><td class="num">720</td><td class="num">45.4%</td></tr>
-              <tr><td class="rank-num">4</td><td class="art-title">[기획] AI 시대 언론의 역할...</td><td class="num">58,420</td><td class="num">2,480</td><td class="num">580</td><td class="num">43.1%</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div><!-- /preview-main -->
-  </div><!-- /preview-wrap -->
 </div>
 
 <script>
-// ── NAVIGATE TO PREVIEW ──
-function goToPreview(screenId) {
-  // Switch to preview tab
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-preview').classList.add('active');
-  document.querySelectorAll('.tab-btn')[1].classList.add('active');
-  // Show the right screen
-  document.querySelectorAll('.screen-pane').forEach(s => s.style.display = 'none');
-  document.getElementById(screenId).style.display = 'block';
-  // Highlight correct menu item
-  document.querySelectorAll('.prev-menu-item').forEach(b => b.classList.remove('active'));
-  const menuMap = {
-    'rep-screen': 0, 'dash-screen': 1, 'ops-screen': 2,
-    'report-screen': 3, 'article-screen': 4, 'article-detail-screen': 5
-  };
-  const idx = menuMap[screenId];
-  if(idx !== undefined) {
-    const items = document.querySelectorAll('.prev-menu-item');
-    if(items[idx]) items[idx].classList.add('active');
-  }
+// ── State ──
+const AXES = ['GA4','BigQuery','Python','Salesforce','DBeaver','분석기획','원인규명','상황해석'];
+const state = {};
+AXES.forEach(k => state[k] = { a: null, b: null });
+
+// ── Radar Chart ──
+const CX = 140, CY = 140, MAX_R = 100, N = AXES.length;
+
+function angle(i) {
+  return -Math.PI / 2 + (i * 2 * Math.PI / N);
+}
+function point(i, level) {
+  const r = level === null ? 0 : (level / 4) * MAX_R;
+  return [CX + r * Math.cos(angle(i)), CY + r * Math.sin(angle(i))];
+}
+function toPath(pts) {
+  return pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + ' Z';
 }
 
-// ── NAVIGATE TO DECISION ──
-function goToDecision(cardId) {
-  // Switch to decisions tab
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-decisions').classList.add('active');
-  document.querySelectorAll('.tab-btn')[0].classList.add('active');
-  // Scroll to card with highlight flash
-  setTimeout(() => {
-    const card = document.getElementById(cardId);
-    if(card) {
-      card.scrollIntoView({behavior:'smooth', block:'center'});
-      card.style.outline = '3px solid #E53E3E';
-      card.style.outlineOffset = '3px';
-      setTimeout(() => { card.style.outline = ''; card.style.outlineOffset = ''; }, 1400);
-    }
-  }, 80);
-}
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
-}
+function buildRadar() {
+  const svg = document.getElementById('radar-svg');
+  svg.innerHTML = '';
 
-// ── SCREEN SWITCH ──
-function showScreen(id, btn) {
-  document.querySelectorAll('.screen-pane').forEach(s => s.style.display = 'none');
-  document.querySelectorAll('.prev-menu-item').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).style.display = 'block';
-  btn.classList.add('active');
-}
-
-// ── DECISION LOGIC ──
-const decisions = {};
-const labels = {yes:'포함', no:'제외', hold:'보류', a:'옵션 A', b:'옵션 B'};
-const classes = {yes:'decided-yes', no:'decided-no', hold:'decided-hold', a:'decided-a', b:'decided-b'};
-
-// review box state: yes/a=include, no/b=exclude, hold=hold, null=undecided
-function updateReviewBox(num, choice) {
-  const box = document.getElementById('review-box-'+num);
-  if(!box) return;
-  box.classList.remove('state-undecided','state-include','state-exclude','state-hold');
-  if(!choice) box.classList.add('state-undecided');
-  else if(choice==='yes'||choice==='a') box.classList.add('state-include');
-  else if(choice==='no'||choice==='b') box.classList.add('state-exclude');
-  else if(choice==='hold') box.classList.add('state-hold');
-}
-
-function decide(num, choice, btn) {
-  const card = document.getElementById('card-'+num);
-  const badge = document.getElementById('badge-'+num);
-
-  // Toggle off
-  if(decisions[num] === choice) {
-    delete decisions[num];
-    card.className = 'dec-card';
-    badge.textContent = '—';
-    card.querySelectorAll('.dec-btn').forEach(b => b.classList.remove('active'));
-    updateReviewBox(num, null);
-    updateProgress();
-    return;
+  const ns = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs) {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+    return e;
   }
 
-  decisions[num] = choice;
-  card.className = 'dec-card ' + classes[choice];
-  card.querySelectorAll('.dec-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  badge.textContent = labels[choice];
-  updateReviewBox(num, choice);
-  updateProgress();
-}
+  // Grid rings
+  [1,2,3,4].forEach(lv => {
+    const pts = AXES.map((_, i) => point(i, lv));
+    svg.appendChild(el('polygon', {
+      points: pts.map(p => p.join(',')).join(' '),
+      fill: 'none',
+      stroke: lv === 4 ? '#C8C4BC' : '#E2DFD8',
+      'stroke-width': lv === 4 ? '1.5' : '1'
+    }));
+  });
 
-const cardTitles = {
-  1: '시간대별 방문수·조회수 그래프 (P3)',
-  2: '플랫폼별 인기기사 테이블 5개 탭 (P4)',
-  3: '성과지표 상세 8종 (P4)',
-  4: '기사 생산량 4종 (P5)',
-  5: '랭킹 화면 세분화 — 탭 통합 vs 별도 화면',
-  6: '기사분석 1차 출시 범위',
-  7: '뉴스룸·마케팅 통합 뷰 vs 별도 뷰'
-};
+  // Axis lines
+  AXES.forEach((_, i) => {
+    const [x, y] = point(i, 4);
+    svg.appendChild(el('line', { x1: CX, y1: CY, x2: x, y2: y, stroke: '#E2DFD8', 'stroke-width': '1' }));
+  });
 
-function updateProgress() {
-  const count = Object.keys(decisions).length;
-  const pct = (count / 7) * 100;
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-text').innerHTML = '<span>' + count + '</span> / 7 결정됨';
-  const cntBadge = document.getElementById('cnt-badge');
-  const remaining = 7 - count;
-  cntBadge.textContent = remaining > 0 ? (remaining + '건 대기') : '완료 ✓';
-  cntBadge.className = remaining > 0 ? 'cnt' : 'cnt done';
-  if(remaining === 0) showModal();
-}
+  // Lv labels on top axis (axis 0 = GA4 at top)
+  [1,2,3,4].forEach(lv => {
+    const [x, y] = point(0, lv);
+    const t = el('text', { x: x + 4, y: y + 1, 'font-size': '8', fill: '#AAA6A0', 'font-family': 'JetBrains Mono, monospace', 'font-weight': '600' });
+    t.textContent = lv;
+    svg.appendChild(t);
+  });
 
-function showModal() {
-  const iconMap = {yes:'✅',no:'⬜',hold:'⏸',a:'🔵',b:'🟣'};
-  const labelMap = {yes:'포함',no:'제외',hold:'보류',a:'옵션 A 선택',b:'옵션 B 선택'};
-  const classMap = {yes:'yes',no:'no',hold:'hold',a:'a',b:'b'};
-  let html = '';
-  for(let i=1; i<=7; i++){
-    const d = decisions[i];
-    const cls = d ? classMap[d] : 'undecided';
-    const icon = d ? iconMap[d] : '❓';
-    const result = d ? labelMap[d] : '미결정';
-    html += `<div class="modal-item ${cls}">
-      <span class="modal-item-icon">${icon}</span>
-      <div class="modal-item-text">
-        <div class="modal-item-label">${i}. ${cardTitles[i]}</div>
-        <div class="modal-item-result">${result}</div>
-      </div>
-    </div>`;
+  // B polygon (drawn first, behind A)
+  const bLevels = AXES.map(k => state[k].b);
+  const bHasAny = bLevels.some(v => v !== null);
+  if (bHasAny) {
+    const bPts = AXES.map((_, i) => point(i, bLevels[i] || 0));
+    svg.appendChild(el('polygon', {
+      points: bPts.map(p => p.join(',')).join(' '),
+      fill: 'rgba(180,83,9,0.15)',
+      stroke: '#B45309',
+      'stroke-width': '2',
+      'stroke-linejoin': 'round'
+    }));
+    bPts.forEach((p, i) => {
+      if (bLevels[i] !== null) {
+        svg.appendChild(el('circle', { cx: p[0], cy: p[1], r: '3.5', fill: '#B45309' }));
+      }
+    });
   }
-  document.getElementById('modal-items').innerHTML = html;
-  document.getElementById('modal-sub').textContent = '2026.04.30 통계 화면 구성안 의사결정 결과';
-  document.getElementById('modal-overlay').classList.add('show');
-}
 
-function closeModal(e) {
-  if(e.target === document.getElementById('modal-overlay'))
-    document.getElementById('modal-overlay').classList.remove('show');
-}
-
-function copyDecisions() {
-  const labelMap = {yes:'포함',no:'제외',hold:'보류',a:'옵션 A',b:'옵션 B'};
-  let text = '통계 화면 구성안 의사결정 결과 (2026.04.30)\n\n';
-  for(let i=1; i<=7; i++){
-    const d = decisions[i];
-    text += `${i}. ${cardTitles[i]}\n   → ${d ? labelMap[d] : '미결정'}\n\n`;
+  // A polygon
+  const aLevels = AXES.map(k => state[k].a);
+  const aHasAny = aLevels.some(v => v !== null);
+  if (aHasAny) {
+    const aPts = AXES.map((_, i) => point(i, aLevels[i] || 0));
+    svg.appendChild(el('polygon', {
+      points: aPts.map(p => p.join(',')).join(' '),
+      fill: 'rgba(27,79,216,0.15)',
+      stroke: '#1B4FD8',
+      'stroke-width': '2',
+      'stroke-linejoin': 'round'
+    }));
+    aPts.forEach((p, i) => {
+      if (aLevels[i] !== null) {
+        svg.appendChild(el('circle', { cx: p[0], cy: p[1], r: '3.5', fill: '#1B4FD8' }));
+      }
+    });
   }
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.modal-btn.copy');
-    btn.textContent = '복사됨 ✓';
-    setTimeout(() => btn.textContent = '결과 복사', 1500);
+
+  // Axis labels
+  AXES.forEach((label, i) => {
+    const [x, y] = point(i, 4.6);
+    const ang = angle(i) * 180 / Math.PI;
+    let anchor = 'middle';
+    if (x < CX - 8) anchor = 'end';
+    else if (x > CX + 8) anchor = 'start';
+
+    // Shorten labels for the chart
+    const short = {
+      'GA4': 'GA4',
+      'BigQuery': 'BigQuery',
+      'Python': 'Python',
+      'Salesforce': 'Salesforce',
+      'DBeaver': 'DBeaver',
+      '분석기획': '분석기획',
+      '원인규명': '원인규명',
+      '상황해석': '상황해석'
+    }[label] || label;
+
+    const t = el('text', {
+      x: x.toFixed(1),
+      y: y.toFixed(1),
+      'text-anchor': anchor,
+      'dominant-baseline': 'middle',
+      'font-size': '9.5',
+      'font-weight': '700',
+      fill: '#4A4744',
+      'font-family': 'Noto Sans KR, sans-serif'
+    });
+    t.textContent = short;
+    svg.appendChild(t);
   });
 }
 
-// Platform tabs (preview)
-document.querySelectorAll('#platform-tabs .inner-tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('#platform-tabs .inner-tab').forEach(t => t.classList.remove('active'));
-    this.classList.add('active');
+// ── Click logic ──
+document.querySelectorAll('.diag-block').forEach(block => {
+  const tool = block.dataset.tool;
+  block.querySelectorAll('.diag-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const s = state[tool];
+      const lv = parseInt(cell.dataset.lv);
+      const onA = s.a === lv, onB = s.b === lv;
+      if (onA && onB)        { s.a = null; s.b = null; }
+      else if (onA)          { s.a = null; }
+      else if (onB)          { s.b = null; }
+      else if (s.a === null) { s.a = lv; }
+      else if (s.b === null) { s.b = lv; }
+      else                   { s.a = lv; }
+
+      // Update cell styles
+      block.querySelectorAll('.diag-cell').forEach(c => {
+        const l = parseInt(c.dataset.lv);
+        c.classList.remove('sel-a','sel-b','sel-ab');
+        if (s.a === l && s.b === l) c.classList.add('sel-ab');
+        else if (s.a === l)         c.classList.add('sel-a');
+        else if (s.b === l)         c.classList.add('sel-b');
+      });
+
+      buildRadar();
+    });
   });
 });
-</script>
-<!-- COMPLETION MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal-box">
-    <div class="modal-title">결정 사항 요약</div>
-    <div class="modal-sub" id="modal-sub"></div>
-    <div id="modal-items"></div>
-    <div class="modal-btns">
-      <button class="modal-btn copy" onclick="copyDecisions()">결과 복사</button>
-      <button class="modal-btn close-btn" onclick="document.getElementById('modal-overlay').classList.remove('show')">닫기</button>
-    </div>
-  </div>
-</div>
 
+// Initial render
+buildRadar();
+</script>
 </body>
 </html>

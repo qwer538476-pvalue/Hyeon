@@ -114,16 +114,17 @@ h1 { font-size: clamp(28px, 6vw, 44px); font-weight: 800; letter-spacing: -0.03e
   margin-bottom: 14px;
   line-height: 1.5;
 }
-.diag-legend-row {
-  display: flex;
-  gap: 16px;
-  margin-top: 12px;
-  justify-content: center;
-}
+.diag-legend-row { display: flex; gap: 16px; margin-top: 12px; justify-content: center; }
 .diag-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
 .diag-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; font-family: var(--mono); flex-shrink: 0; }
 .dot-a { background: var(--blue-bg); color: var(--blue); }
 .dot-b { background: var(--amber-bg); color: var(--amber); }
+.mode-toggle { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+.mode-label { font-size: 12px; font-weight: 600; color: var(--text-4); font-family: var(--mono); letter-spacing: 0.06em; margin-right: 2px; }
+.mode-btn { display: flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 7px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; font-size: 13px; font-weight: 700; font-family: var(--font); color: var(--text-3); transition: all 0.12s; }
+.mode-btn:hover { border-color: var(--border-strong); }
+.mode-btn.active-a { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+.mode-btn.active-b { border-color: var(--amber); background: var(--amber-bg); color: var(--amber); }
 
 #radar-svg { width: 100%; height: auto; display: block; }
 
@@ -328,12 +329,12 @@ h1 { font-size: clamp(28px, 6vw, 44px); font-weight: 800; letter-spacing: -0.03e
       <div class="diag-chart-col">
         <div class="diag-chart-card">
           <p class="diag-chart-title">역량 레이더</p>
-          <p class="diag-chart-hint">아래 항목을 클릭하면 도형이 실시간으로 그려집니다</p>
-          <svg id="radar-svg" viewBox="0 0 320 310" xmlns="http://www.w3.org/2000/svg"></svg>
-          <div class="diag-legend-row">
-            <div class="diag-legend-item"><div class="diag-dot dot-a">A</div><span>A</span></div>
-            <div class="diag-legend-item"><div class="diag-dot dot-b">B</div><span>B</span></div>
+          <div class="mode-toggle">
+            <span class="mode-label">모드</span>
+            <button class="mode-btn active-a" id="btn-a"><div class="diag-dot dot-a" style="width:18px;height:18px;font-size:9px">A</div>A 선택 중</button>
+            <button class="mode-btn" id="btn-b"><div class="diag-dot dot-b" style="width:18px;height:18px;font-size:9px">B</div>B 선택</button>
           </div>
+          <svg id="radar-svg" viewBox="0 0 320 310" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
       </div>
 
@@ -556,6 +557,26 @@ function buildRadar() {
   });
 }
 
+// ── Mode toggle ──
+let currentMode = 'a';
+const btnA = document.getElementById('btn-a');
+const btnB = document.getElementById('btn-b');
+btnA.addEventListener('click', () => {
+  currentMode = 'a';
+  btnA.classList.add('active-a');
+  btnA.textContent = '';
+  btnA.innerHTML = '<div class="diag-dot dot-a" style="width:18px;height:18px;font-size:9px">A</div>A 선택 중';
+  btnB.classList.remove('active-b');
+  btnB.innerHTML = '<div class="diag-dot dot-b" style="width:18px;height:18px;font-size:9px">B</div>B 선택';
+});
+btnB.addEventListener('click', () => {
+  currentMode = 'b';
+  btnB.classList.add('active-b');
+  btnB.innerHTML = '<div class="diag-dot dot-b" style="width:18px;height:18px;font-size:9px">B</div>B 선택 중';
+  btnA.classList.remove('active-a');
+  btnA.innerHTML = '<div class="diag-dot dot-a" style="width:18px;height:18px;font-size:9px">A</div>A 선택';
+});
+
 // ── Click logic ──
 document.querySelectorAll('.diag-block').forEach(block => {
   const tool = block.dataset.tool;
@@ -563,13 +584,11 @@ document.querySelectorAll('.diag-block').forEach(block => {
     cell.addEventListener('click', () => {
       const s = state[tool];
       const lv = parseInt(cell.dataset.lv);
-      const onA = s.a === lv, onB = s.b === lv;
-      if (onA && onB)        { s.a = null; s.b = null; }
-      else if (onA)          { s.a = null; }
-      else if (onB)          { s.b = null; }
-      else if (s.a === null) { s.a = lv; }
-      else if (s.b === null) { s.b = lv; }
-      else                   { s.a = lv; }
+      if (currentMode === 'a') {
+        s.a = (s.a === lv) ? null : lv;
+      } else {
+        s.b = (s.b === lv) ? null : lv;
+      }
 
       // Update cell styles
       block.querySelectorAll('.diag-cell').forEach(c => {

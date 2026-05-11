@@ -329,7 +329,7 @@ h1 { font-size: clamp(28px, 6vw, 44px); font-weight: 800; letter-spacing: -0.03e
         <div class="diag-chart-card">
           <p class="diag-chart-title">역량 레이더</p>
           <p class="diag-chart-hint">아래 항목을 클릭하면 도형이 실시간으로 그려집니다</p>
-          <svg id="radar-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg"></svg>
+          <svg id="radar-svg" viewBox="0 0 320 310" xmlns="http://www.w3.org/2000/svg"></svg>
           <div class="diag-legend-row">
             <div class="diag-legend-item"><div class="diag-dot dot-a">A</div><span>A</span></div>
             <div class="diag-legend-item"><div class="diag-dot dot-b">B</div><span>B</span></div>
@@ -434,7 +434,7 @@ const state = {};
 AXES.forEach(k => state[k] = { a: null, b: null });
 
 // ── Radar Chart ──
-const CX = 140, CY = 140, MAX_R = 100, N = AXES.length;
+const CX = 160, CY = 155, MAX_R = 95, N = AXES.length;
 
 function angle(i) {
   return -Math.PI / 2 + (i * 2 * Math.PI / N);
@@ -523,7 +523,7 @@ function buildRadar() {
 
   // Axis labels
   AXES.forEach((label, i) => {
-    const [x, y] = point(i, 4.6);
+    const [x, y] = point(i, 4.45);
     const ang = angle(i) * 180 / Math.PI;
     let anchor = 'middle';
     if (x < CX - 8) anchor = 'end';
